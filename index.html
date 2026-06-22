@@ -15,9 +15,6 @@
   <!-- Babel for in-browser JSX parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
   
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
   <!-- PDF Export Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin></script>
@@ -55,7 +52,7 @@
     // 洗練されたカラー定義（ダークグレー、ライトグレー、グレージュ、アースカラー等）
     const NODE_COLORS = [
       { id: 'white', name: 'ホワイト', bg: 'bg-white', border: 'border-slate-200', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-100', inputBg: 'bg-slate-50', actionBtn: 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-400 hover:text-red-600 hover:bg-red-50' },
-      { id: 'lightgrey', name: 'ライトグレー', bg: 'bg-slate-100', border: 'border-slate-300', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-200/60', inputBg: 'bg-slate-50', actionBtn: 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-500 hover:text-red-600 hover:bg-red-50' },
+      { id: 'lightgrey', name: 'ライトグレー', bg: 'bg-slate-100', border: 'border-slate-300', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-200/60', inputBg: 'bg-slate-50', actionBtn: 'text-slate-505 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-505 hover:text-red-600 hover:bg-red-50' },
       { id: 'darkgrey', name: 'ダークグレー', bg: 'bg-[#555a64]', border: 'border-[#3f434a]', text: 'text-white', pathText: 'text-slate-200', pathBg: 'bg-[#3f434a]/60', inputBg: 'bg-[#6c727d]', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-300 hover:bg-red-900/50' },
       { id: 'greige', name: 'グレージュ', bg: 'bg-[#E5E0DB]', border: 'border-[#c8bfa7]', text: 'text-[#4a3f35]', pathText: 'text-[#6e5d4f]', pathBg: 'bg-[#f0ece9]', inputBg: 'bg-[#f5f2f0]', actionBtn: 'text-[#6e5d4f] hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-[#6e5d4f] hover:text-red-600 hover:bg-red-50' },
       { id: 'olive', name: 'アース(オリーブ)', bg: 'bg-[#7D846C]', border: 'border-[#626853]', text: 'text-white', pathText: 'text-[#d2d6c9]', pathBg: 'bg-[#5d624e]', inputBg: 'bg-[#8f967d]', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
@@ -97,7 +94,7 @@
       }
     ];
 
-    // テンプレート用の複数ページ標準ウェブサイト構成
+    // テンプレート用の複数ページ標準ウェブサイト構成 (2段目以降の初期パスを#ハッシュ仕様に統合！)
     const multiPageTemplate = [
       {
         id: 'root-1',
@@ -115,8 +112,8 @@
             isExpanded: true,
             isHeaderMenu: true,
             children: [
-               { id: 'child-1-1', title: '代表挨拶', path: '/about/message', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] },
-               { id: 'child-1-2', title: 'アクセス', path: '/about/access', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] }
+               { id: 'child-1-1', title: '代表挨拶', path: '#message', color: 'greige', isExpanded: true, isHeaderMenu: false, children: [] },
+               { id: 'child-1-2', title: 'アクセス', path: '#access', color: 'greige', isExpanded: true, isHeaderMenu: false, children: [] }
             ]
           },
           {
@@ -127,9 +124,9 @@
             isExpanded: true,
             isHeaderMenu: true,
             children: [
-               { id: 'child-2-1', title: 'Webサイト制作', path: '/services/web', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] },
-               { id: 'child-2-2', title: 'システム開発', path: '/services/system', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] },
-               { id: 'child-2-3', title: 'マーケティング', path: '/services/marketing', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] }
+               { id: 'child-2-1', title: 'Webサイト制作', path: '#web', color: 'greige', isExpanded: true, isHeaderMenu: false, children: [] },
+               { id: 'child-2-2', title: 'システム開発', path: '#system', color: 'greige', isExpanded: true, isHeaderMenu: false, children: [] },
+               { id: 'child-2-3', title: 'マーケティング', path: '#marketing', color: 'greige', isExpanded: true, isHeaderMenu: false, children: [] }
             ]
           },
           {
@@ -294,7 +291,7 @@
         a.download = 'directory_map.xls';
         a.click();
         URL.revokeObjectURL(url);
-        if(onShowToast) onShowToast('Excel用ファイル(.xls)をダウンロードしました');
+        if(onShowToast) onShowToast('Excelファイル(.xls)をダウンロードしました');
       };
 
       return (
@@ -365,7 +362,7 @@
                           )}
                           {row.node.isHeaderMenu && (
                             <span className="px-1.5 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded select-none shrink-0 flex items-center gap-1">
-                              <svg className="w-3 h-3 text-indigo-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14.25 9.75l-4.5 1.5 1.5 4.5 4.5-1.5-1.5-4.5z" /></svg>
+                              <svg className="w-3.5 h-3.5 text-indigo-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14.25 9.75l-4.5 1.5 1.5 4.5 4.5-1.5-1.5-4.5z" /></svg>
                               ヘッダーナビ掲載
                             </span>
                           )}
@@ -383,7 +380,7 @@
     };
 
     // サイトマップツリーの個別ノード
-    const OrgNode = ({ node, onAddChild, onAddSibling, onUpdate, onDelete, onToggle, level = 0, isExportingPDF }) => {
+    const OrgNode = ({ node, onAddChild, onAddSibling, onUpdate, onDelete, onToggle, onStartMove, onPasteMove, movingNodeId, level = 0, isExportingPDF, layoutDirection }) => {
       const [isEditing, setIsEditing] = useState(false);
       const [editTitle, setEditTitle] = useState(node.title);
       const [editPath, setEditPath] = useState(node.path);
@@ -423,27 +420,30 @@
       const isAnchorLink = node.path && node.path.startsWith('#');
       const borderClass = isAnchorLink ? 'border-dashed border-slate-400' : currentStyle.border;
 
-      // このRootが「LP構成」の最上部であり、子供たちがアンカーリンクを持っているかを判定
-      const isLPHeaderMode = isRoot && node.children && node.children.some(c => c.path && c.path.startsWith('#'));
+      // ★最上部（Root）は構成を問わず、常に「共通プレミアムヘッダーバー」として表現
+      const isHeaderBarMode = isRoot;
       
       // 連動して表示されるヘッダーメニュー用の項目を抽出
       const headerMenuItems = node.children ? node.children.filter(c => c.isHeaderMenu) : [];
 
-      if (isLPHeaderMode) {
+      // ★自分が移動対象ノードかどうか
+      const isThisNodeMoving = movingNodeId === node.id;
+
+      if (isHeaderBarMode) {
         return (
           <li>
-            <div className="relative inline-flex flex-col items-center group node-card animate-fade-in">
-              {/* ★ LPのヘッダーナビゲーションバーを模した横長プレミアムデザイン (横幅をw-[920px]、最大幅をmax-w-[95vw]へ拡大) */}
+            <div className={`relative inline-flex flex-col items-center group node-card animate-fade-in mb-6 ${isThisNodeMoving ? 'opacity-40 border-dashed animate-pulse' : ''}`}>
+              {/* ★ 共通プレミアムヘッダーバー (横幅w-[920px], 最大幅max-w-[95vw]) */}
               <div className={`border-2 rounded-xl p-4 w-[920px] max-w-[95vw] relative transition-all duration-300 shadow-md hover:shadow-lg
                 ${currentStyle.bg} ${currentStyle.border}`}>
                 
                 {/* 補助ラベル */}
                 <div className="flex items-center gap-1 text-[9px] font-bold text-indigo-500 uppercase tracking-widest mb-2.5">
-                  <svg className="w-3 h-3 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>
-                  <span>LP Global Navigation (親ヘッダー)</span>
+                  <svg className="w-3.5 h-3.5 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>
+                  <span>Global Navigation (親ヘッダー)</span>
                 </div>
 
-                {/* 擬似ヘッダーバー: 左端の・印スペースを完全に廃止し、横いっぱいに綺麗にストレッチするように等間隔配置 */}
+                {/* 擬似ヘッダーバー */}
                 <div className="bg-white/70 backdrop-blur-sm rounded-lg px-4 py-3 border border-black/5 shadow-inner">
                   <div className="flex items-center justify-around w-full gap-2 overflow-x-auto scrollbar-none">
                     {headerMenuItems.length > 0 ? (
@@ -462,9 +462,20 @@
                   </div>
                 </div>
 
-                {/* 右上の追加ボタン */}
+                {/* 右上の追加・貼り付けボタン */}
                 {!isEditing && !isExportingPDF && (
-                  <div className="absolute top-2 right-2 flex gap-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20">
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20">
+                    {/* ★ 移動モード中で、移動元がルート（自分自身）以外なら、ここにペーストできるようにする */}
+                    {movingNodeId && movingNodeId !== node.id && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onPasteMove(node.id, 'child'); }}
+                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-300 rounded-lg shadow-sm hover:bg-amber-100 transition-all animate-bounce"
+                        title="この下に切り取ったページを移動"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h10a2.25 2.25 0 002.25-2.25V10.5A2.25 2.25 0 0017.25 8.25H15M9 12l3 3m0 0l3-3m-3 3V3" /></svg>
+                        <span>ここへ移動(子)</span>
+                      </button>
+                    )}
                     <button 
                       onClick={(e) => { e.stopPropagation(); setShowAddMenu(true); }} 
                       className={`p-1.5 rounded transition-colors ${currentStyle.actionBtn}`} 
@@ -475,14 +486,14 @@
                   </div>
                 )}
 
-                {/* 追加メニュー（＋）を押した時だけ下部が展開するクリーン仕様 */}
+                {/* 追加メニュー（＋）展開エリア */}
                 {showAddMenu && !isExportingPDF && (
                   <div className="mt-3.5 border-t border-black/5 pt-2">
                     <div className="flex flex-col items-center justify-center animate-fade-in" onClick={e => e.stopPropagation()}>
                       <span className="text-[10px] font-bold mb-1.5 text-slate-500">追加先を選択</span>
                       <div className="flex gap-2 w-full">
                         <button 
-                          onClick={(e) => { e.stopPropagation(); onAddChild(node.id); setShowAddMenu(false); }}
+                          onClick={(e) => { e.stopPropagation(); onAddChild(node.id, level); setShowAddMenu(false); }}
                           className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" /></svg>
@@ -502,9 +513,9 @@
               </div>
             </div>
 
-            {/* 子ノード(セクション)の描画 */}
-            {node.children.length > 0 && (
-              <ul>
+            {/* 横並び（horizontal）モードの時は、最上位ヘッダーバーから下へ枝分かれする子供ノードを描画 */}
+            {layoutDirection !== 'vertical' && (node.isExpanded || isExportingPDF) && node.children && node.children.length > 0 && (
+              <ul className={level >= 1 ? "sub-vertical-tree" : ""}>
                 {node.children.map(child => (
                   <OrgNode 
                     key={child.id} 
@@ -515,7 +526,11 @@
                     onUpdate={onUpdate}
                     onDelete={onDelete}
                     onToggle={onToggle}
+                    onStartMove={onStartMove}
+                    onPasteMove={onPasteMove}
+                    movingNodeId={movingNodeId}
                     isExportingPDF={isExportingPDF}
+                    layoutDirection={layoutDirection}
                   />
                 ))}
               </ul>
@@ -526,7 +541,7 @@
 
       return (
         <li>
-          <div className="relative inline-flex flex-col items-center group node-card">
+          <div className={`relative inline-flex flex-col items-center group node-card ${isThisNodeMoving ? 'opacity-40 scale-95 border-dashed animate-pulse' : ''}`}>
             {/* カード本体 */}
             <div className={`border-2 rounded-xl pt-5 pb-4 px-2 w-[190px] relative transition-all duration-300 shadow-sm hover:shadow-md
               ${currentStyle.bg}
@@ -543,10 +558,20 @@
               {/* 各種アクションボタン */}
               {!isEditing && !showDeleteConfirm && !showAddMenu && !isExportingPDF && (
                 <div className="absolute top-1 right-1 flex gap-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20">
+                  {/* ★ 位置移動（切り取り）開始ボタン */}
+                  {!movingNodeId && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onStartMove(node.id); }}
+                      className={`p-1.5 rounded transition-colors ${currentStyle.actionBtn}`} 
+                      title="このカードを切り取って移動する"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                    </button>
+                  )}
                   <button 
                     onClick={(e) => { e.stopPropagation(); setShowAddMenu(true); }} 
                     className={`p-1.5 rounded transition-colors ${currentStyle.actionBtn}`} 
-                    title="追加メニューを表示"
+                    title="追加・移動メニューを表示"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                   </button>
@@ -574,47 +599,136 @@
                   </div>
                 ) : showAddMenu && !isExportingPDF ? (
                   <div className="flex flex-col items-center justify-center animate-fade-in" onClick={e => e.stopPropagation()}>
-                    <span className={`text-[11px] font-bold mb-1.5 ${currentStyle.text === 'text-white' ? 'text-white/80' : 'text-slate-500'}`}>追加先を選択</span>
-                    <div className="grid grid-cols-3 gap-1 w-full">
-                      {!isRoot ? (
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'left'); setShowAddMenu(false); }}
-                          className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
-                          title="同じ階層の左側に追加"
-                        >
-                          <span className="text-sm font-semibold">←</span>
-                          <span className="scale-90 origin-center">左隣</span>
-                        </button>
-                      ) : (
-                        <div className="py-1.5 text-slate-400 text-[10px] flex items-center justify-center bg-slate-100 rounded-lg select-none border border-slate-200">
-                          -
+                    <span className={`text-[11px] font-bold mb-1.5 ${currentStyle.text === 'text-white' ? 'text-white/80' : 'text-slate-500'}`}>
+                      {movingNodeId ? '移動先を選択' : '追加先を選択'}
+                    </span>
+                    
+                    {/* ★ 移動モード（カット＆ペースト）実行時の貼り付けUI */}
+                    {movingNodeId ? (
+                      layoutDirection === 'vertical' || level >= 2 ? (
+                        /* 縦並びLP、または2段目以降の縦並び階層の貼り付け先（上/下） */
+                        <div className="flex flex-col gap-1 w-full">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onPasteMove(node.id, 'left'); setShowAddMenu(false); }}
+                            className="py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-md flex items-center justify-center gap-1"
+                            title="このカードの上に移動する"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" /></svg>
+                            <span>この上へ移動</span>
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onPasteMove(node.id, 'right'); setShowAddMenu(false); }}
+                            className="py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-md flex items-center justify-center gap-1"
+                            title="このカードの下に移動する"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" /></svg>
+                            <span>この下へ移動</span>
+                          </button>
+                          {/* 親ページに子供として移動させるオプション (標準タイプの1段目の子にしたい場合など) */}
+                          {layoutDirection !== 'vertical' && level === 1 && (
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); onPasteMove(node.id, 'child'); setShowAddMenu(false); }}
+                              className="py-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold rounded-lg transition-colors shadow-md flex items-center justify-center gap-1 mt-0.5"
+                              title="このページの下層(子)へ移動する"
+                            >
+                              <span>子として移動 ↳</span>
+                            </button>
+                          )}
                         </div>
-                      )}
-                      
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onAddChild(node.id); setShowAddMenu(false); }}
-                        className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
-                        title="子ページを追加"
-                      >
-                        <span className="text-sm font-semibold">↓</span>
-                        <span className="scale-90 origin-center">下(子)</span>
-                      </button>
+                      ) : (
+                        /* 横並び（標準タイプの第1階層など）の貼り付け先（左隣/右隣/子として） */
+                        <div className="grid grid-cols-3 gap-1 w-full">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onPasteMove(node.id, 'left'); setShowAddMenu(false); }}
+                            className="py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-md flex flex-col items-center justify-center gap-0.5"
+                            title="このページの左側に移動する"
+                          >
+                            <span className="text-sm font-semibold">←</span>
+                            <span className="scale-90 origin-center whitespace-nowrap">左隣へ</span>
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onPasteMove(node.id, 'child'); setShowAddMenu(false); }}
+                            className="py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold rounded-lg transition-colors shadow-md flex flex-col items-center justify-center gap-0.5"
+                            title="このページの下層子ページとして移動する"
+                          >
+                            <span className="text-sm font-semibold">↓</span>
+                            <span className="scale-90 origin-center whitespace-nowrap">子として</span>
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onPasteMove(node.id, 'right'); setShowAddMenu(false); }}
+                            className="py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-md flex flex-col items-center justify-center gap-0.5"
+                            title="このページの右側に移動する"
+                          >
+                            <span className="text-sm font-semibold">→</span>
+                            <span className="scale-90 origin-center whitespace-nowrap">右隣へ</span>
+                          </button>
+                        </div>
+                      )
+                    ) : (
+                      /* 通常の「新規追加」UI */
+                      layoutDirection === 'vertical' || level >= 2 ? (
+                        <div className="grid grid-cols-2 gap-2 w-full">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'left', level); setShowAddMenu(false); }}
+                            className="py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center gap-1"
+                            title="このセクションの上に追加"
+                          >
+                            <span className="text-sm font-semibold">↑</span>
+                            <span className="scale-90 origin-center">上に追加</span>
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'right', level); setShowAddMenu(false); }}
+                            className="py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center gap-1"
+                            title="このセクションの下に追加"
+                          >
+                            <span className="text-sm font-semibold">↓</span>
+                            <span className="scale-90 origin-center">下に追加</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-1 w-full">
+                          {!isRoot ? (
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'left', level); setShowAddMenu(false); }}
+                              className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
+                              title="同じ階層の左側に追加"
+                            >
+                              <span className="text-sm font-semibold">←</span>
+                              <span className="scale-90 origin-center">左隣</span>
+                            </button>
+                          ) : (
+                            <div className="py-1.5 text-slate-400 text-[10px] flex items-center justify-center bg-slate-100 rounded-lg select-none border border-slate-200">
+                              -
+                            </div>
+                          )}
+                          
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onAddChild(node.id, level); setShowAddMenu(false); }}
+                            className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
+                            title="子ページを追加"
+                          >
+                            <span className="text-sm font-semibold">↓</span>
+                            <span className="scale-90 origin-center">下(子)</span>
+                          </button>
 
-                      {!isRoot ? (
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'right'); setShowAddMenu(false); }}
-                          className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
-                          title="同じ階層 of 右側に追加"
-                        >
-                          <span className="text-sm font-semibold">→</span>
-                          <span className="scale-90 origin-center">右隣</span>
-                        </button>
-                      ) : (
-                        <div className="py-1.5 text-slate-400 text-[10px] flex items-center justify-center bg-slate-100 rounded-lg select-none border border-slate-200">
-                          -
+                          {!isRoot ? (
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'right', level); setShowAddMenu(false); }}
+                              className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
+                              title="同じ階層 of 右側に追加"
+                            >
+                              <span className="text-sm font-semibold">→</span>
+                              <span className="scale-90 origin-center">右隣</span>
+                            </button>
+                          ) : (
+                            <div className="py-1.5 text-slate-400 text-[10px] flex items-center justify-center bg-slate-100 rounded-lg select-none border border-slate-200">
+                              -
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      )
+                    )}
+                    
                     <button 
                       onClick={(e) => { e.stopPropagation(); setShowAddMenu(false); }}
                       className={`mt-1.5 w-full py-1 text-[10px] font-bold rounded-md transition-colors border ${
@@ -690,7 +804,7 @@
                     {/* アンカーリンク / URLバッジ */}
                     <div className={`inline-flex items-center justify-center gap-1 ${currentStyle.pathBg} rounded-md px-3 py-1.5 max-w-[95%] border border-white/20`}>
                       {isAnchorLink && (
-                        <svg className={`w-3 h-3 ${currentStyle.pathText} shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-3.182.879m4.136-1.517l2.25-2.25m-3-1.125a4.5 4.5 0 00-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397" /></svg>
+                        <svg className={`w-3 h-3 ${currentStyle.pathText} shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-3.182.879m4.136-1.517l2.25-2.25" /></svg>
                       )}
                       <div 
                         className={`text-[11px] ${currentStyle.pathText} font-mono`}
@@ -719,9 +833,9 @@
             </div>
           </div>
 
-          {/* 子ノードの描画 (PDF出力時はすべて強制展開) */}
-          {(node.isExpanded || isExportingPDF) && node.children.length > 0 && (
-            <ul>
+          {/* 子ノードの描画 (PDF出力時はすべて強制展開、かつ縦並びLP構成のときは二重のツリー描画を防ぐため水平モードのみ有効化) */}
+          {layoutDirection !== 'vertical' && (node.isExpanded || isExportingPDF) && node.children.length > 0 && (
+            <ul className={level >= 1 ? "sub-vertical-tree" : ""}>
               {node.children.map(child => (
                 <OrgNode 
                   key={child.id} 
@@ -732,7 +846,11 @@
                   onUpdate={onUpdate}
                   onDelete={onDelete}
                   onToggle={onToggle}
+                  onStartMove={onStartMove}
+                  onPasteMove={onPasteMove}
+                  movingNodeId={movingNodeId}
                   isExportingPDF={isExportingPDF}
+                  layoutDirection={layoutDirection}
                 />
               ))}
             </ul>
@@ -742,6 +860,7 @@
     };
 
     function App() {
+      // 起動時に埋め込まれている `initialData` をロード
       const [data, setData] = useState(initialData); 
       const [toastMessage, setToastMessage] = useState('');
       const [isExportingPDF, setIsExportingPDF] = useState(false);
@@ -752,6 +871,10 @@
       const isInitialDataLP = initialData[0]?.children?.some(c => c.path && c.path.startsWith('#'));
       const [layoutDirection, setLayoutDirection] = useState(isInitialDataLP ? 'vertical' : 'horizontal');
 
+      // ★ 位置移動（切り取り＆貼り付け移動）の状態管理State
+      const [movingNodeId, setMovingNodeId] = useState(null);
+      const [movingNodeTitle, setMovingNodeTitle] = useState('');
+
       const [isNamingModalOpen, setIsNamingModalOpen] = useState(false);
       const [pdfFileName, setPdfFileName] = useState('サイトマップ_ディレクトリマップ');
 
@@ -760,6 +883,7 @@
       const fileInputRef = useRef(null);
       const containerRef = useRef(null);
 
+      // iPadを含むタッチ＆マウスドラッグ兼用スクロール用ステート
       const [isDragging, setIsDragging] = useState(false);
       const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
@@ -767,7 +891,7 @@
         if (window.lucide) {
           window.lucide.createIcons();
         }
-      }, [data, isExportingPDF, isNamingModalOpen, activeTab, isTemplateModalOpen, layoutDirection]);
+      }, [data, isExportingPDF, isNamingModalOpen, activeTab, isTemplateModalOpen, layoutDirection, movingNodeId]);
 
       const showToast = (msg) => {
         setToastMessage(msg);
@@ -839,13 +963,15 @@
         }));
       };
 
-      const handleAddChild = (parentId) => {
+      // 子ページ追加ハンドラー (レベルに応じたURL自動判定を追加)
+      const handleAddChild = (parentId, parentLevel) => {
         const isLP = layoutDirection === 'vertical';
+        const isSubVertical = parentLevel >= 1 || isLP;
         const newNode = {
           id: generateId(),
-          title: isLP ? '新規セクション' : '新規ページ',
-          path: isLP ? '#section' : '/new-page',
-          color: isLP ? 'greige' : 'green',
+          title: isSubVertical ? '新規セクション' : '新規ページ',
+          path: isSubVertical ? '#section' : '/new-page',
+          color: isSubVertical ? 'greige' : 'green',
           isExpanded: true,
           isHeaderMenu: isLP ? true : false, 
           children: []
@@ -853,13 +979,15 @@
         setData(addChildNode(data, parentId, newNode));
       };
 
-      const handleAddSibling = (targetId, direction) => {
+      // 兄弟ページ追加ハンドラー (レベルに応じたURL自動判定を追加)
+      const handleAddSibling = (targetId, direction, currentLevel) => {
         const isLP = layoutDirection === 'vertical';
+        const isSubVertical = currentLevel >= 2 || isLP;
         const newNode = {
           id: generateId(),
-          title: isLP ? '新規セクション' : '新規ページ',
-          path: isLP ? '#section' : '/new-page',
-          color: isLP ? 'greige' : 'green',
+          title: isSubVertical ? '新規セクション' : '新規ページ',
+          path: isSubVertical ? '#section' : '/new-page',
+          color: isSubVertical ? 'greige' : 'green',
           isExpanded: true,
           isHeaderMenu: isLP ? true : false,
           children: []
@@ -876,6 +1004,136 @@
       const handleExpandAll = () => setData(expandAll(data, true));
       const handleCollapseAll = () => setData(expandAll(data, false));
 
+      // ★★★ 位置移動ロジックの実装群 ★★★
+      
+      // 対象ノードのタイトルを再帰的に見つけて取得する関数
+      const findNodeTitle = (nodes, id) => {
+        for (let node of nodes) {
+          if (node.id === id) return node.title;
+          if (node.children && node.children.length > 0) {
+            const foundTitle = findNodeTitle(node.children, id);
+            if (foundTitle) return foundTitle;
+          }
+        }
+        return '';
+      };
+
+      // 移動（切り取り）の開始
+      const handleStartMove = (id) => {
+        const title = findNodeTitle(data, id);
+        setMovingNodeId(id);
+        setMovingNodeTitle(title);
+        showToast(`「${title}」の切り取りを開始しました。移動先の＋ボタンから貼り付けてください。`);
+      };
+
+      // 指定したノードをツリーから削除すると共に、その切り離したノードの複製を返却する関数
+      const removeNodeAndGetCopy = (nodes, id, holder = { copy: null }) => {
+        const filtered = nodes.filter(node => {
+          if (node.id === id) {
+            holder.copy = { ...node }; // 参照を切って保持
+            return false;
+          }
+          return true;
+        });
+
+        const nextNodes = filtered.map(node => {
+          if (node.children && node.children.length > 0) {
+            return {
+              ...node,
+              children: removeNodeAndGetCopy(node.children, id, holder)
+            };
+          }
+          return node;
+        });
+
+        return nextNodes;
+      };
+
+      // 指定したノードを、ターゲットノードの指定位置（左隣、右隣、子として末尾）に挿入する関数
+      const insertNodeAtTarget = (nodes, targetId, nodeToInsert, position) => {
+        // 子（末尾）として追加する場合
+        if (position === 'child') {
+          return nodes.map(node => {
+            if (node.id === targetId) {
+              return {
+                ...node,
+                isExpanded: true,
+                children: [...(node.children || []), nodeToInsert]
+              };
+            }
+            if (node.children && node.children.length > 0) {
+              return {
+                ...node,
+                children: insertNodeAtTarget(node.children, targetId, nodeToInsert, position)
+              };
+            }
+            return node;
+          });
+        }
+
+        // 兄弟（隣）に挿入する場合
+        const targetIndex = nodes.findIndex(n => n.id === targetId);
+        if (targetIndex !== -1) {
+          const updatedNodes = [...nodes];
+          if (position === 'left') {
+            // 左隣または上に挿入
+            updatedNodes.splice(targetIndex, 0, nodeToInsert);
+          } else {
+            // 右隣または下に挿入
+            updatedNodes.splice(targetIndex + 1, 0, nodeToInsert);
+          }
+          return updatedNodes;
+        }
+
+        return nodes.map(node => {
+          if (node.children && node.children.length > 0) {
+            return {
+              ...node,
+              children: insertNodeAtTarget(node.children, targetId, nodeToInsert, position)
+            };
+          }
+          return node;
+        });
+      };
+
+      // ペースト（移動実行）処理
+      const handlePasteMove = (targetId, position) => {
+        if (!movingNodeId) return;
+
+        // 1. まずツリーから対象ノードを綺麗に切り離す
+        const holder = { copy: null };
+        const cleanedData = removeNodeAndGetCopy(data, movingNodeId, holder);
+
+        if (!holder.copy) {
+          showToast('移動対象データの切り離しに失敗しました。');
+          setMovingNodeId(null);
+          return;
+        }
+
+        // 移動先の階層（レベル）情報に応じて、移動したカードの色やGナビに載せるかの性質を自動適合させる
+        const isLP = layoutDirection === 'vertical';
+        const isTargetRoot = targetId === 'root-lp' || targetId === 'root-1';
+        
+        // 貼り付け先の状態を判定して、移動したデータの初期設定を最適化
+        let updatedNodeCopy = { ...holder.copy };
+        if (isLP) {
+          updatedNodeCopy.color = 'greige';
+          updatedNodeCopy.isHeaderMenu = true;
+          if (updatedNodeCopy.path && !updatedNodeCopy.path.startsWith('#')) {
+            updatedNodeCopy.path = '#' + updatedNodeCopy.path.replace(/[^a-zA-Z0-9-]/g, '');
+          }
+        }
+
+        // 2. 切り離したノードを移動先ターゲットノードの指定位置にドッキング
+        const finalData = insertNodeAtTarget(cleanedData, targetId, updatedNodeCopy, position);
+
+        setData(finalData);
+        showToast(`「${movingNodeTitle}」を移動しました。`);
+        setMovingNodeId(null);
+        setMovingNodeTitle('');
+      };
+
+      // テンプレート読み込み
       const handleLoadTemplate = (type) => {
         if (type === 'multi') {
           setData(multiPageTemplate);
@@ -887,6 +1145,7 @@
           showToast('シングルページ(LP)構成に切り替えました');
         }
         setIsTemplateModalOpen(false);
+        setMovingNodeId(null); // 移動中の設定もクリア
       };
 
       // マウス＆タッチ（iPad用）共通移動処理
@@ -946,6 +1205,7 @@
         showToast('編集データ入りのHTMLファイルをダウンロードしました！');
       };
 
+      // インポート機能：HTMLファイル・JSONファイルどちらからでもデータを復元
       const handleImportFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -982,6 +1242,7 @@
             alert("有効なサイトマップデータ（HTMLまたはJSON）を検出できませんでした。");
           }
           if (fileInputRef.current) fileInputRef.current.value = '';
+          setMovingNodeId(null);
         };
         reader.readAsText(file);
       };
@@ -1017,6 +1278,7 @@
         document.body.removeChild(textArea);
       };
 
+      // PDF出力処理
       const executePDFGeneration = async (fileNameToUse) => {
         setIsExportingPDF(true);
         showToast('PDFを作成しています。数秒お待ちください...');
@@ -1120,7 +1382,9 @@
                           key={node.id} 
                           node={node} 
                           onAddChild={()=>{}} onAddSibling={()=>{}} onUpdate={()=>{}} onDelete={()=>{}} onToggle={()=>{}} 
+                          onStartMove={()=>{}} onPasteMove={()=>{}} movingNodeId={null}
                           isExportingPDF={true} 
+                          layoutDirection={layoutDirection}
                         />
                       ))}
                     </ul>
@@ -1153,7 +1417,7 @@
                   className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all"
                   title="標準複数ページ or シングルLP構成を選択"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a6.72 6.72 0 010 .252c-.008.379.137.751.43.992l1.003.828a1.125 1.125 0 01.26 1.43l-1.296 2.247a1.125 1.125 0 01-1.37.491l-1.216-.456c-.356-.133-.751-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.57 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.252c.007-.379-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.645-.869l.213-1.28z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a6.72 6.72 0 010 .252c-.008.379.137.751.43.992l1.003.828a1.125 1.125 0 01.26 1.43l-1.296 2.247a1.125 1.125 0 01-1.37.491l-1.216-.456c-.356-.133-.751-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.57 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.252c.007-.379-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.645-.869l.213-1.28z" /></svg>
                   <span>構成選択</span>
                 </button>
               </div>
@@ -1168,7 +1432,7 @@
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 111.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 111.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                   <span>ツリー図</span>
                 </button>
                 <button
@@ -1193,7 +1457,7 @@
                       className={`px-2 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
                         layoutDirection === 'horizontal' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
                       }`}
-                      title="ツリーを横並びにします"
+                      title="ツリーを横並び（ヘッダーメニュー型）にします"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                       <span className="hidden lg:inline">横並び</span>
@@ -1203,7 +1467,7 @@
                       className={`px-2 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
                         layoutDirection === 'vertical' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
                       }`}
-                      title="ツリーを縦並びにします"
+                      title="ツリーを縦並び（ストーリー・スクロール型）にします"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" /></svg>
                       <span className="hidden lg:inline">縦並び</span>
@@ -1212,12 +1476,12 @@
                 )}
 
                 <button onClick={handleCopyText} className="flex items-center gap-1 px-2 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="テキストコピー">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376A8.965 8.965 0 0012 12.75a8.965 8.965 0 00-3.75 4.625M18 7.875V11.25m0-3.375a1.125 1.125 0 011.125-1.125h1.5a1.125 1.125 0 011.125 1.125v2.25m-3.75-2.25h1.5M12 3v3.375m0-3.375a1.125 1.125 0 011.125-1.125h1.5A1.125 1.125 0 0115.75 3v2.25m-3.75-2.25h1.5" /></svg>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376A8.965 8.965 0 0012 12.75a8.965 8.965 0 00-3.75 4.625" /></svg>
                   <span className="hidden sm:inline ml-1">コピー</span>
                 </button>
 
                 <button onClick={handleOpenNamingModal} className="flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="PDF保存">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.844l-.324.324a1.5 1.5 0 01-2.122 0l-1.25-1.25a1.5 1.5 0 010-2.122l.324-.324m10.09 10.091l-.324.324a1.5 1.5 0 01-2.122 0l-1.25-1.25a1.5 1.5 0 010-2.122l.324-.324m10.09-10.091l.324-.324a1.5 1.5 0 012.122 0l1.25 1.25a1.5 1.5 0 010 2.122l-.324.324m-10.09-10.09l.324-.324a1.5 1.5 0 012.122 0l1.25 1.25a1.5 1.5 0 010 2.122l-.324.324" /></svg>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.844l-.324.324a1.5 1.5 0 01-2.122 0l-1.25-1.25a1.5 1.5 0 010-2.122l.324-.324m10.09 10.091l-.324.324a1.5 1.5 0 01-2.122 0l-1.25-1.25a1.5 1.5 0 010-2.122l.324-.324" /></svg>
                   <span className="hidden sm:inline ml-1">PDF</span>
                 </button>
 
@@ -1226,13 +1490,13 @@
                 {/* インポート（読込） */}
                 <input type="file" accept=".html,.json" className="hidden" ref={fileInputRef} onChange={handleImportFile} />
                 <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="ファイル読込">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5" /></svg>
                   <span className="hidden sm:inline ml-1">読込</span>
                 </button>
                 
                 {/* HTMLとして保存するボタン */}
-                <button onClick={handleExportHtml} className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm" title="HTMLファイルとして保存">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                <button onClick={handleExportHtml} className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm" title="HTML保存">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5" /></svg>
                   <span className="hidden sm:inline ml-1 font-bold">HTML保存</span>
                 </button>
               </div>
@@ -1241,6 +1505,22 @@
 
           <main className="flex-1 flex flex-col relative overflow-hidden bg-slate-100/50">
             
+            {/* ★ 移動モード実行中の際に画面上部に出現する、直感的で分かりやすい移動ステータスバー */}
+            {movingNodeId && (
+              <div className="bg-amber-500 text-white text-sm font-bold px-6 py-3.5 shadow-md flex items-center justify-between z-20 animate-fade-in flex-shrink-0 border-b border-amber-600">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                  <span className="tracking-wide">移動モード中: <strong>「{movingNodeTitle}」</strong>を切り取りました。移動させたい先のカードの「＋」メニューを開いて貼り付けてください。</span>
+                </div>
+                <button 
+                  onClick={() => { setMovingNodeId(null); setMovingNodeTitle(''); showToast('移動をキャンセルしました。'); }}
+                  className="px-3.5 py-1 bg-white/20 hover:bg-white/35 rounded-lg border border-white/40 text-xs font-extrabold transition-all"
+                >
+                  キャンセル
+                </button>
+              </div>
+            )}
+
             {/* 1. ツリー図キャンバス */}
             <div className={`flex-1 relative overflow-hidden ${activeTab === 'tree' ? 'block' : 'hidden'}`}>
               <div 
@@ -1259,23 +1539,83 @@
                   backgroundColor: '#f8fafc'
                 }}
               >
-                <div className="min-w-max p-16 pb-32 pt-20">
-                  <div className={layoutDirection === 'vertical' ? 'vertical-tree' : 'org-tree'}>
-                    <ul>
-                      {data.map(node => (
+                {/* 縦並びモード（LPフロー）の際、横スクロールさせずに縦一列にセンタリング配置する */}
+                <div className={`mx-auto pb-32 pt-8 px-4 ${layoutDirection === 'vertical' ? 'w-full max-w-5xl flex flex-col items-center' : 'min-w-max p-16'}`}>
+                  
+                  {/* 縦並びの場合は最上部のRootノード（共通ナビヘッダー）をキャンバス最上部に追従(sticky)して描画、配下の子ノードのみをスクロールさせる構造 */}
+                  {layoutDirection === 'vertical' ? (
+                    <div className="w-full flex flex-col items-center">
+                      
+                      {/* 1. 追従する親ヘッダーバー (画面上部にピン留め) */}
+                      <div className="sticky top-0 z-40 w-full flex justify-center bg-slate-50/80 backdrop-blur-md pb-6 pt-2 border-b border-slate-200/50 shadow-sm mb-6">
                         <OrgNode 
-                          key={node.id} 
-                          node={node} 
+                          node={data[0]} 
                           onAddChild={handleAddChild}
                           onAddSibling={handleAddSibling}
                           onUpdate={handleUpdate}
                           onDelete={handleDelete}
                           onToggle={handleToggle}
+                          onStartMove={handleStartMove}
+                          onPasteMove={handlePasteMove}
+                          movingNodeId={movingNodeId}
                           isExportingPDF={false}
+                          layoutDirection={layoutDirection}
                         />
-                      ))}
-                    </ul>
-                  </div>
+                      </div>
+                      
+                      {/* 2. タイムラインで繋がれた中央縦並びのセクションカード群 (ヘッダーの裏に隠れながら綺麗に通過スクロールします) */}
+                      {data[0].children && data[0].children.length > 0 && (
+                        <div className="vertical-tree w-full flex flex-col items-center">
+                          <ul className="w-full flex flex-col items-center relative">
+                            {/* 中央の一本線（ヘッダーから伸びるフロー線） */}
+                            <div className="absolute top-0 bottom-6 w-[2px] bg-slate-300 left-1/2 -translate-x-1/2"></div>
+                            
+                            {data[0].children.map(child => (
+                              <OrgNode 
+                                key={child.id} 
+                                node={child} 
+                                level={1}
+                                onAddChild={handleAddChild}
+                                onAddSibling={handleAddSibling}
+                                onUpdate={handleUpdate}
+                                onDelete={handleDelete}
+                                onToggle={handleToggle}
+                                onStartMove={handleStartMove}
+                                onPasteMove={handlePasteMove}
+                                movingNodeId={movingNodeId}
+                                isExportingPDF={false}
+                                layoutDirection={layoutDirection}
+                              />
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                    </div>
+                  ) : (
+                    /* 横並び（通常組織図）は従来の全ツリー描画構造を適用。最上位ノード（Root）が幅広ヘッダーのまま下部に子ノードたちを完璧に描画します！ */
+                    <div className="org-tree">
+                      <ul>
+                        {data.map(node => (
+                          <OrgNode 
+                            key={node.id} 
+                            node={node} 
+                            onAddChild={handleAddChild}
+                            onAddSibling={handleAddSibling}
+                            onUpdate={handleUpdate}
+                            onDelete={handleDelete}
+                            onToggle={handleToggle}
+                            onStartMove={handleStartMove}
+                            onPasteMove={handlePasteMove}
+                            movingNodeId={movingNodeId}
+                            isExportingPDF={false}
+                            layoutDirection={layoutDirection}
+                          />
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                 </div>
               </div>
             </div>
@@ -1336,7 +1676,7 @@
                   <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                   <div>
                     <span className="font-bold block mb-0.5">注意点</span>
-                    テンプレートを切り替えると、現在作成中のサイトマップ構成は上書きされて失われます。必要であれば切り替え前に右上の「保存」ボタンでファイルをバックアップしてください。
+                    テンプレートを切り替えると、現在作成中のサイトマップ構成は上書きされて失われます。必要であれば切り替え前に右上の「HTML保存」ボタンでファイルをバックアップしてください。
                   </div>
                 </div>
 
@@ -1399,7 +1739,7 @@
                     type="submit"
                     className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-100 transition-colors"
                   >
-                    保存する
+                    PDFを保存
                   </button>
                 </div>
               </form>
@@ -1432,32 +1772,83 @@
       .org-tree > ul { padding-top: 0; }
       .org-tree > ul::before { display: none; }
 
+      /* --- ★ 1段目の下にぶら下がる、縦一列のサブツリースタイル --- */
+      .sub-vertical-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 24px;
+        position: relative;
+        padding-left: 0;
+        margin: 0;
+      }
+      /* トグルボタンの下から伸びる結合線 */
+      .sub-vertical-tree::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        border-left: 2px solid #cbd5e1;
+        width: 0;
+        height: 24px;
+        transform: translateX(-50%);
+      }
+      .sub-vertical-tree li {
+        position: relative;
+        padding: 12px 0 !important;
+        float: none !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: auto !important;
+      }
+      /* 子同士を繋ぐ中央縦線 */
+      .sub-vertical-tree li::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        border-left: 2px solid #cbd5e1;
+        width: 0;
+        height: 12px;
+        transform: translateX(-50%);
+        display: block !important;
+        border-top: none !important;
+        border-radius: 0 !important;
+      }
+      /* 横方向の結合線を完全打ち消し */
+      .sub-vertical-tree li::after {
+        display: none !important;
+      }
+      .sub-vertical-tree li:last-child::before {
+        display: none !important;
+      }
+
       /* --- ★ 縦並び（LP縦フロー型）のスタイル定義 --- */
       .vertical-tree { display: flex; flex-direction: column; align-items: center; }
-      .vertical-tree ul { padding-top: 36px; position: relative; display: flex; flex-direction: column; align-items: center; padding-left: 0; margin: 0; }
-      .vertical-tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 0 0 36px 0; width: 100%; }
+      .vertical-tree ul { position: relative; display: flex; flex-direction: column; align-items: center; padding-left: 0; margin: 0; }
       
-      /* 親から下に伸びる中央線 */
-      .vertical-tree ul::before { 
-        content: ''; 
-        position: absolute; 
-        top: 0; 
-        left: 50%; 
-        border-left: 2px solid #cbd5e1; 
-        width: 0; 
-        height: 36px; 
-        transform: translateX(-50%); 
+      /* 親(ヘッダー)から下に伸びる一本の中央接続フロー線 */
+      .vertical-tree li { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        position: relative; 
+        padding: 0 0 40px 0; 
+        width: 100%; 
+        float: none !important;
+        list-style-type: none;
       }
       
-      /* 子要素同士を繋ぐ縦線 */
+      /* 子要素同士の縦つなぎ線 */
       .vertical-tree li::before { 
         content: ''; 
         position: absolute; 
         bottom: 0; 
         left: 50%; 
-        border-left: 2px solid #cbd5e1; 
+        border-left: 2px solid #94a3b8; 
         width: 0; 
-        height: 36px; 
+        height: 40px; 
         transform: translateX(-50%); 
         display: block !important;
         border-top: none !important;
@@ -1466,7 +1857,6 @@
       
       /* 最後の要素の下の線は不要 */
       .vertical-tree li:last-child::before { display: none !important; }
-      
       .vertical-tree li::after { display: none !important; }
     `;
 
