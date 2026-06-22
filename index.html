@@ -13,17 +13,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   
   <!-- Babel for in-browser JSX parsing -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- PDF Export Libraries (事前読み込み) -->
+  <!-- PDF Export Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin></script>
 
   <style>
-    /* iOSでの長押し選択やスクロールのバウンスなどを制御するスタイル */
     body, html {
       margin: 0;
       padding: 0;
@@ -36,6 +35,14 @@
       -webkit-user-select: text;
       user-select: text;
     }
+    /* スクロールバーの非表示用スタイル */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased overflow-hidden">
@@ -45,10 +52,10 @@
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
-    // カラーパレットの定義 (前回の追加カラーも完全に引き継ぎ)
+    // 洗練されたカラー定義（ダークグレー、ライトグレー、グレージュ、アースカラー等）
     const NODE_COLORS = [
       { id: 'white', name: 'ホワイト', bg: 'bg-white', border: 'border-slate-200', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-100', inputBg: 'bg-slate-50', actionBtn: 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-400 hover:text-red-600 hover:bg-red-50' },
-      { id: 'lightgrey', name: 'ライトグレー', bg: 'bg-slate-100', border: 'border-slate-300', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-200/60', inputBg: 'bg-slate-50', actionBtn: 'text-slate-505 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-505 hover:text-red-600 hover:bg-red-50' },
+      { id: 'lightgrey', name: 'ライトグレー', bg: 'bg-slate-100', border: 'border-slate-300', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-200/60', inputBg: 'bg-slate-50', actionBtn: 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-500 hover:text-red-600 hover:bg-red-50' },
       { id: 'darkgrey', name: 'ダークグレー', bg: 'bg-[#555a64]', border: 'border-[#3f434a]', text: 'text-white', pathText: 'text-slate-200', pathBg: 'bg-[#3f434a]/60', inputBg: 'bg-[#6c727d]', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-300 hover:bg-red-900/50' },
       { id: 'greige', name: 'グレージュ', bg: 'bg-[#E5E0DB]', border: 'border-[#c8bfa7]', text: 'text-[#4a3f35]', pathText: 'text-[#6e5d4f]', pathBg: 'bg-[#f0ece9]', inputBg: 'bg-[#f5f2f0]', actionBtn: 'text-[#6e5d4f] hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-[#6e5d4f] hover:text-red-600 hover:bg-red-50' },
       { id: 'olive', name: 'アース(オリーブ)', bg: 'bg-[#7D846C]', border: 'border-[#626853]', text: 'text-white', pathText: 'text-[#d2d6c9]', pathBg: 'bg-[#5d624e]', inputBg: 'bg-[#8f967d]', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
@@ -57,7 +64,7 @@
       { id: 'mint', name: 'ミント', bg: 'bg-emerald-100', border: 'border-emerald-300', text: 'text-emerald-900', pathText: 'text-emerald-700', pathBg: 'bg-emerald-200/60', inputBg: 'bg-emerald-50', actionBtn: 'text-emerald-600 hover:text-emerald-800 hover:bg-emerald-200/50', deleteBtn: 'text-emerald-600 hover:text-red-600 hover:bg-red-100' },
       { id: 'sky', name: 'スカイ', bg: 'bg-sky-100', border: 'border-sky-300', text: 'text-sky-900', pathText: 'text-sky-700', pathBg: 'bg-sky-200/60', inputBg: 'bg-sky-50', actionBtn: 'text-sky-600 hover:text-sky-800 hover:bg-sky-200/50', deleteBtn: 'text-sky-600 hover:text-red-600 hover:bg-red-100' },
       { id: 'red', name: 'レッド', bg: 'bg-red-500', border: 'border-red-600', text: 'text-white', pathText: 'text-red-100', pathBg: 'bg-red-600/50', inputBg: 'bg-red-400', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
-      { id: 'orange', name: 'オレンジ', bg: 'bg-orange-500', border: 'border-orange-600', text: 'text-white', pathText: 'text-orange-100', pathBg: 'bg-orange-600/50', inputBg: 'bg-orange-400', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
+      { id: 'orange', name: 'オレンジ', bg: 'bg-orange-500', border: 'border-orange-600', text: 'text-white', pathText: 'text-orange-100', pathBg: 'bg-orange-600/50', inputBg: 'bg-orange-400', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-[#b04020]' },
       { id: 'green', name: 'グリーン', bg: 'bg-emerald-500', border: 'border-emerald-600', text: 'text-white', pathText: 'text-emerald-100', pathBg: 'bg-emerald-600/50', inputBg: 'bg-emerald-400', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
       { id: 'teal', name: 'ティール', bg: 'bg-teal-600', border: 'border-teal-700', text: 'text-white', pathText: 'text-teal-100', pathBg: 'bg-teal-700/50', inputBg: 'bg-teal-500', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
       { id: 'blue', name: 'ブルー', bg: 'bg-blue-500', border: 'border-blue-600', text: 'text-white', pathText: 'text-blue-100', pathBg: 'bg-blue-600/50', inputBg: 'bg-blue-400', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
@@ -70,14 +77,35 @@
       return NODE_COLORS.find(c => c.id === colorId) || NODE_COLORS[0];
     };
 
-    // 初期データ
+    // 初期データ：★ 保存（エクスポート）時にこの変数領域が書き換えられてHTMLが再生成されます
     const initialData = [
+      {
+        "id": "root-lp",
+        "title": "ランディングページ",
+        "path": "/",
+        "color": "indigo",
+        "isExpanded": true,
+        "isHeaderMenu": true,
+        "children": [
+          { "id": "lp-1", "title": "メインビジュアル", "path": "#top", "color": "greige", "isExpanded": true, "isHeaderMenu": false, "children": [] },
+          { "id": "lp-2", "title": "選ばれる理由・特徴", "path": "#features", "color": "greige", "isExpanded": true, "isHeaderMenu": true, "children": [] },
+          { "id": "lp-3", "title": "サービス内容紹介", "path": "#services", "color": "greige", "isExpanded": true, "isHeaderMenu": true, "children": [] },
+          { "id": "lp-4", "title": "導入実績・事例", "path": "#case-studies", "color": "greige", "isExpanded": true, "isHeaderMenu": true, "children": [] },
+          { "id": "lp-5", "title": "会社情報・概要", "path": "#about", "color": "greige", "isExpanded": true, "isHeaderMenu": true, "children": [] },
+          { "id": "lp-6", "title": "お問い合わせフォーム", "path": "#contact", "color": "terracotta", "isExpanded": true, "isHeaderMenu": true, "children": [] }
+        ]
+      }
+    ];
+
+    // テンプレート用の複数ページ標準ウェブサイト構成
+    const multiPageTemplate = [
       {
         id: 'root-1',
         title: 'ホーム',
         path: '/',
         color: 'green',
         isExpanded: true,
+        isHeaderMenu: true,
         children: [
           {
             id: 'child-1',
@@ -85,9 +113,10 @@
             path: '/about',
             color: 'green',
             isExpanded: true,
+            isHeaderMenu: true,
             children: [
-               { id: 'child-1-1', title: '代表挨拶', path: '/about/message', color: 'green', isExpanded: true, children: [] },
-               { id: 'child-1-2', title: 'アクセス', path: '/about/access', color: 'green', isExpanded: true, children: [] }
+               { id: 'child-1-1', title: '代表挨拶', path: '/about/message', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] },
+               { id: 'child-1-2', title: 'アクセス', path: '/about/access', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] }
             ]
           },
           {
@@ -96,10 +125,11 @@
             path: '/services',
             color: 'green',
             isExpanded: true,
+            isHeaderMenu: true,
             children: [
-               { id: 'child-2-1', title: 'Webサイト制作', path: '/services/web', color: 'green', isExpanded: true, children: [] },
-               { id: 'child-2-2', title: 'システム開発', path: '/services/system', color: 'green', isExpanded: true, children: [] },
-               { id: 'child-2-3', title: 'マーケティング', path: '/services/marketing', color: 'green', isExpanded: true, children: [] }
+               { id: 'child-2-1', title: 'Webサイト制作', path: '/services/web', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] },
+               { id: 'child-2-2', title: 'システム開発', path: '/services/system', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] },
+               { id: 'child-2-3', title: 'マーケティング', path: '/services/marketing', color: 'green', isExpanded: true, isHeaderMenu: false, children: [] }
             ]
           },
           {
@@ -108,6 +138,7 @@
             path: '/recruit',
             color: 'green',
             isExpanded: true,
+            isHeaderMenu: true,
             children: []
           },
           {
@@ -116,15 +147,36 @@
             path: '/contact',
             color: 'green',
             isExpanded: true,
+            isHeaderMenu: true,
             children: []
           }
         ]
       }
     ];
 
+    // テンプレート用のシングルページ（LP）構成
+    const singlePageTemplate = [
+      {
+        id: 'root-lp',
+        title: 'ランディングページ',
+        path: '/',
+        color: 'indigo',
+        isExpanded: true,
+        isHeaderMenu: true,
+        children: [
+          { id: 'lp-1', title: 'メインビジュアル', path: '#top', color: 'greige', isExpanded: true, isHeaderMenu: false, children: [] },
+          { id: 'lp-2', title: '選ばれる理由・特徴', path: '#features', color: 'greige', isExpanded: true, isHeaderMenu: true, children: [] },
+          { id: 'lp-3', title: 'サービス内容紹介', path: '#services', color: 'greige', isExpanded: true, isHeaderMenu: true, children: [] },
+          { id: 'lp-4', title: '導入実績・事例', path: '#case-studies', color: 'greige', isExpanded: true, isHeaderMenu: true, children: [] },
+          { id: 'lp-5', title: '会社情報・概要', path: '#about', color: 'greige', isExpanded: true, isHeaderMenu: true, children: [] },
+          { id: 'lp-6', title: 'お問い合わせフォーム', path: '#contact', color: 'terracotta', isExpanded: true, isHeaderMenu: true, children: [] }
+        ]
+      }
+    ];
+
     const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-    // トースト通知
+    // トースト通知コンポーネント
     const Toast = ({ message, onClose }) => {
       useEffect(() => {
         const timer = setTimeout(() => {
@@ -136,8 +188,8 @@
       if (!message) return null;
 
       return (
-        <div className="fixed bottom-4 right-4 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50">
-          <i data-lucide="check" className="text-green-400 w-5 h-5"></i>
+        <div className="fixed bottom-4 right-4 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in">
+          <svg className="w-5 h-5 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
           <span className="font-medium text-sm">{message}</span>
         </div>
       );
@@ -154,7 +206,7 @@
       return count;
     };
 
-    // ディレクトリマップ (Excel・PDF対応)
+    // ディレクトリマップ
     const DirectoryMap = ({ data, onShowToast, isExportingPDF }) => {
       const rows = [];
       let maxLevel = 1;
@@ -212,9 +264,15 @@
         for (let i = 1; i <= maxLevel; i++) {
           html += `<th style="width: 120px;">第${i}階層</th>`;
         }
-        html += `<th style="width: 250px;">URL</th></tr></thead><tbody>`;
+        html += `<th style="width: 250px;">URL / アンカー</th></tr></thead><tbody>`;
 
         rows.forEach(row => {
+          const isAnchor = row.node.path && row.node.path.startsWith('#');
+          let pathDisplay = isAnchor ? `[アンカー] ${row.node.path}` : row.node.path;
+          if (row.node.isHeaderMenu) {
+            pathDisplay = `[🧭ナビ表示] ` + pathDisplay;
+          }
+
           html += `<tr>`;
           for (let l = 1; l <= maxLevel; l++) {
             let rowLevelColorClass = `bg-level-${row.level > 5 ? 3 : row.level}`;
@@ -224,7 +282,7 @@
               html += `<td class="${rowLevelColorClass}"></td>`;
             }
           }
-          html += `<td class="bg-level-${row.level > 5 ? 3 : row.level}" style="font-family: monospace;">${row.node.path}</td></tr>`;
+          html += `<td class="bg-level-${row.level > 5 ? 3 : row.level}" style="font-family: monospace;">${pathDisplay}</td></tr>`;
         });
 
         html += `</tbody></table></body></html>`;
@@ -236,22 +294,22 @@
         a.download = 'directory_map.xls';
         a.click();
         URL.revokeObjectURL(url);
-        if(onShowToast) onShowToast('Excelファイル(.xls)をダウンロードしました');
+        if(onShowToast) onShowToast('Excel用ファイル(.xls)をダウンロードしました');
       };
 
       return (
         <div className={`p-4 sm:p-6 lg:p-8 ${isExportingPDF ? 'w-full px-0 py-0 max-w-none' : 'max-w-7xl mx-auto'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2 text-slate-800">
-              <i data-lucide="table-properties" className="text-indigo-600 w-5 h-5"></i>
+              <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" /></svg>
               <h2 className="text-lg font-bold tracking-tight">ディレクトリマップ (ページ一覧)</h2>
             </div>
             {!isExportingPDF && (
               <button 
                 onClick={handleExportExcel}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors w-fit shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors w-fit shadow-sm animate-fade-in"
               >
-                <i data-lucide="file-spreadsheet" className="w-4 h-4"></i>
+                <svg className="w-4 h-4 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 <span>Excel出力</span>
               </button>
             )}
@@ -266,13 +324,15 @@
                     </th>
                   ))}
                   <th className="px-4 py-2.5 font-bold border border-slate-400 text-center whitespace-nowrap min-w-[200px]">
-                    URL
+                    URL / アンカー
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => {
                   const tds = [];
+                  const isAnchor = row.node.path && row.node.path.startsWith('#');
+
                   for (let l = 1; l <= maxLevel; l++) {
                     if (l === row.level) {
                       tds.push(
@@ -296,8 +356,21 @@
                   return (
                     <tr key={row.node.id}>
                       {tds}
-                      <td className={`px-4 py-2.5 border border-slate-400 font-mono text-[13px] text-slate-700 ${getLevelBgColor(row.level)}`}>
-                        {row.node.path}
+                      <td className={`px-4 py-2.5 border border-slate-400 font-mono text-[13px] text-slate-700 ${getLevelBgColor(row.level)} align-middle`}>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {isAnchor && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-slate-200 text-slate-700 rounded select-none shrink-0">
+                              ページ内セクション
+                            </span>
+                          )}
+                          {row.node.isHeaderMenu && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded select-none shrink-0 flex items-center gap-1">
+                              <svg className="w-3 h-3 text-indigo-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14.25 9.75l-4.5 1.5 1.5 4.5 4.5-1.5-1.5-4.5z" /></svg>
+                              ヘッダーナビ掲載
+                            </span>
+                          )}
+                          <span className="truncate">{row.node.path}</span>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -315,28 +388,23 @@
       const [editTitle, setEditTitle] = useState(node.title);
       const [editPath, setEditPath] = useState(node.path);
       const [editColor, setEditColor] = useState(node.color || 'green');
+      const [editHeaderMenu, setEditHeaderMenu] = useState(node.isHeaderMenu || false); 
       const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-      const [showAddMenu, setShowAddMenu] = useState(false); // ★ 追加方向の選択メニュー状態
+      const [showAddMenu, setShowAddMenu] = useState(false); 
 
       useEffect(() => {
         if (isEditing) {
           setEditTitle(node.title);
           setEditPath(node.path);
           setEditColor(node.color || 'green');
+          setEditHeaderMenu(node.isHeaderMenu || false);
         }
-      }, [isEditing, node.title, node.path, node.color]);
-
-      // Lucideアイコンの再適用
-      useEffect(() => {
-        if (window.lucide) {
-          window.lucide.createIcons();
-        }
-      }, [isEditing, showDeleteConfirm, showAddMenu]);
+      }, [isEditing, node.title, node.path, node.color, node.isHeaderMenu]);
 
       const handleSave = (e) => {
         e?.stopPropagation();
         if (!editTitle.trim()) return;
-        onUpdate(node.id, { title: editTitle, path: editPath, color: editColor });
+        onUpdate(node.id, { title: editTitle, path: editPath, color: editColor, isHeaderMenu: editHeaderMenu });
         setIsEditing(false);
       };
 
@@ -351,14 +419,127 @@
       const isRoot = level === 0;
       const currentStyle = getColorClass(node.color || 'green');
 
+      // パスが # から始まっている場合は、ページ内リンク（アンカー）として点線ボーダーを適用
+      const isAnchorLink = node.path && node.path.startsWith('#');
+      const borderClass = isAnchorLink ? 'border-dashed border-slate-400' : currentStyle.border;
+
+      // このRootが「LP構成」の最上部であり、子供たちがアンカーリンクを持っているかを判定
+      const isLPHeaderMode = isRoot && node.children && node.children.some(c => c.path && c.path.startsWith('#'));
+      
+      // 連動して表示されるヘッダーメニュー用の項目を抽出
+      const headerMenuItems = node.children ? node.children.filter(c => c.isHeaderMenu) : [];
+
+      if (isLPHeaderMode) {
+        return (
+          <li>
+            <div className="relative inline-flex flex-col items-center group node-card animate-fade-in">
+              {/* ★ LPのヘッダーナビゲーションバーを模した横長プレミアムデザイン (横幅をw-[920px]、最大幅をmax-w-[95vw]へ拡大) */}
+              <div className={`border-2 rounded-xl p-4 w-[920px] max-w-[95vw] relative transition-all duration-300 shadow-md hover:shadow-lg
+                ${currentStyle.bg} ${currentStyle.border}`}>
+                
+                {/* 補助ラベル */}
+                <div className="flex items-center gap-1 text-[9px] font-bold text-indigo-500 uppercase tracking-widest mb-2.5">
+                  <svg className="w-3 h-3 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" /></svg>
+                  <span>LP Global Navigation (親ヘッダー)</span>
+                </div>
+
+                {/* 擬似ヘッダーバー: 左端の・印スペースを完全に廃止し、横いっぱいに綺麗にストレッチするように等間隔配置 */}
+                <div className="bg-white/70 backdrop-blur-sm rounded-lg px-4 py-3 border border-black/5 shadow-inner">
+                  <div className="flex items-center justify-around w-full gap-2 overflow-x-auto scrollbar-none">
+                    {headerMenuItems.length > 0 ? (
+                      headerMenuItems.map(item => (
+                        <span 
+                          key={item.id} 
+                          className="text-[11px] sm:text-xs font-bold text-slate-700 bg-white/95 px-4 py-2 rounded-lg border border-slate-200/80 shadow-sm truncate flex-1 text-center mx-1.5 select-none transition-all duration-200"
+                          title={`${item.title} (${item.path})`}
+                        >
+                          {item.title}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-[10px] text-slate-400 italic font-mono select-none w-full text-center">メニュー掲載項目がありません（セクションカードから「Gナビに表示」をONにしてください）</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* 右上の追加ボタン */}
+                {!isEditing && !isExportingPDF && (
+                  <div className="absolute top-2 right-2 flex gap-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setShowAddMenu(true); }} 
+                      className={`p-1.5 rounded transition-colors ${currentStyle.actionBtn}`} 
+                      title="子セクションを追加"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    </button>
+                  </div>
+                )}
+
+                {/* 追加メニュー（＋）を押した時だけ下部が展開するクリーン仕様 */}
+                {showAddMenu && !isExportingPDF && (
+                  <div className="mt-3.5 border-t border-black/5 pt-2">
+                    <div className="flex flex-col items-center justify-center animate-fade-in" onClick={e => e.stopPropagation()}>
+                      <span className="text-[10px] font-bold mb-1.5 text-slate-500">追加先を選択</span>
+                      <div className="flex gap-2 w-full">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onAddChild(node.id); setShowAddMenu(false); }}
+                          className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" /></svg>
+                          <span>下(子セクション)に追加</span>
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setShowAddMenu(false); }}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold rounded-lg transition-colors border border-slate-200"
+                        >
+                          閉じる
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+
+            {/* 子ノード(セクション)の描画 */}
+            {node.children.length > 0 && (
+              <ul>
+                {node.children.map(child => (
+                  <OrgNode 
+                    key={child.id} 
+                    node={child} 
+                    level={level + 1}
+                    onAddChild={onAddChild}
+                    onAddSibling={onAddSibling}
+                    onUpdate={onUpdate}
+                    onDelete={onDelete}
+                    onToggle={onToggle}
+                    isExportingPDF={isExportingPDF}
+                  />
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      }
+
       return (
         <li>
           <div className="relative inline-flex flex-col items-center group node-card">
             {/* カード本体 */}
             <div className={`border-2 rounded-xl pt-5 pb-4 px-2 w-[190px] relative transition-all duration-300 shadow-sm hover:shadow-md
               ${currentStyle.bg}
-              ${isEditing || showDeleteConfirm || showAddMenu ? 'ring-4 ring-indigo-100 border-indigo-400 z-10' : `${currentStyle.border} hover:border-indigo-300`}`}>
+              ${isEditing || showDeleteConfirm || showAddMenu ? 'ring-4 ring-indigo-100 border-indigo-400 z-10' : `${borderClass} hover:border-indigo-300`}`}>
               
+              {/* 🧭 ヘッダーナビ掲載バッジの表示 */}
+              {node.isHeaderMenu && !isEditing && !showDeleteConfirm && !showAddMenu && (
+                <div className="absolute -top-3 left-4 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-indigo-500 shadow-sm animate-fade-in z-20">
+                  <svg className="w-3 h-3 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14.25 9.75l-4.5 1.5 1.5 4.5 4.5-1.5-1.5-4.5z" /></svg>
+                  <span>Gナビ掲載</span>
+                </div>
+              )}
+
               {/* 各種アクションボタン */}
               {!isEditing && !showDeleteConfirm && !showAddMenu && !isExportingPDF && (
                 <div className="absolute top-1 right-1 flex gap-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20">
@@ -367,7 +548,7 @@
                     className={`p-1.5 rounded transition-colors ${currentStyle.actionBtn}`} 
                     title="追加メニューを表示"
                   >
-                    <i data-lucide="plus" className="w-4 h-4"></i>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                   </button>
                   {!isRoot && (
                     <button 
@@ -375,13 +556,13 @@
                       className={`p-1.5 rounded transition-colors ${currentStyle.deleteBtn}`} 
                       title="削除"
                     >
-                      <i data-lucide="trash-2" className="w-4 h-4"></i>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                     </button>
                   )}
                 </div>
               )}
 
-              {/* コンテンツエリア (表示・編集・削除に加えて、追加方向選択をイン・カード形式で展開) */}
+              {/* コンテンツエリア */}
               <div className="min-h-[64px] flex flex-col justify-center">
                 {showDeleteConfirm && !isExportingPDF ? (
                   <div className="flex flex-col items-center justify-center animate-fade-in" onClick={e => e.stopPropagation()}>
@@ -392,11 +573,9 @@
                     </div>
                   </div>
                 ) : showAddMenu && !isExportingPDF ? (
-                  /* ★ 追加方向の選択メニュー (iPadでも快適にタップできる大きさ) */
                   <div className="flex flex-col items-center justify-center animate-fade-in" onClick={e => e.stopPropagation()}>
                     <span className={`text-[11px] font-bold mb-1.5 ${currentStyle.text === 'text-white' ? 'text-white/80' : 'text-slate-500'}`}>追加先を選択</span>
                     <div className="grid grid-cols-3 gap-1 w-full">
-                      {/* 左隣へ追加ボタン (Root以外のみ有効) */}
                       {!isRoot ? (
                         <button 
                           onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'left'); setShowAddMenu(false); }}
@@ -412,7 +591,6 @@
                         </div>
                       )}
                       
-                      {/* 下(子)へ追加ボタン */}
                       <button 
                         onClick={(e) => { e.stopPropagation(); onAddChild(node.id); setShowAddMenu(false); }}
                         className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
@@ -422,12 +600,11 @@
                         <span className="scale-90 origin-center">下(子)</span>
                       </button>
 
-                      {/* 右隣へ追加ボタン (Root以外のみ有効) */}
                       {!isRoot ? (
                         <button 
                           onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'right'); setShowAddMenu(false); }}
                           className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
-                          title="同じ階層の右側に追加"
+                          title="同じ階層 of 右側に追加"
                         >
                           <span className="text-sm font-semibold">→</span>
                           <span className="scale-90 origin-center">右隣</span>
@@ -451,7 +628,6 @@
                   </div>
                 ) : isEditing && !isExportingPDF ? (
                   <div className="flex flex-col gap-2 px-1" onClick={e => e.stopPropagation()}>
-                    {/* カラーピッカー */}
                     <div className="flex justify-center flex-wrap gap-1.5 mb-1 bg-white/90 backdrop-blur-sm p-1.5 rounded-lg border border-slate-200/50 shadow-sm w-full relative z-20">
                       {NODE_COLORS.map(c => (
                         <button
@@ -468,22 +644,35 @@
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      className={`w-full px-2 py-1.5 text-sm font-bold border-b border-white/30 focus:border-white focus:outline-none text-center ${currentStyle.inputBg} ${currentStyle.text} placeholder:text-current placeholder:opacity-50 rounded-t transition-colors`}
+                      className={`w-full px-2 py-1 text-sm font-bold border-b border-white/30 focus:border-white focus:outline-none text-center ${currentStyle.inputBg} ${currentStyle.text} placeholder:text-current placeholder:opacity-50 rounded transition-colors`}
                       placeholder="タイトル"
                     />
                     <input
                       value={editPath}
                       onChange={(e) => setEditPath(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      className={`w-full px-2 py-1 text-xs font-mono border-b border-white/30 focus:border-white focus:outline-none text-center ${currentStyle.inputBg} ${currentStyle.text} placeholder:text-current placeholder:opacity-50 rounded-t transition-colors mt-0.5`}
-                      placeholder="/path"
+                      className={`w-full px-2 py-0.5 text-xs font-mono border-b border-white/30 focus:border-white focus:outline-none text-center ${currentStyle.inputBg} ${currentStyle.text} placeholder:text-current placeholder:opacity-50 rounded mt-0.5 transition-colors`}
+                      placeholder="/path または #anchor"
                     />
-                    <div className="flex justify-center gap-2 mt-2">
+                    
+                    {/* ★ ヘッダーナビ掲載切り替えトグル */}
+                    <div className="flex items-center justify-between mt-1 px-1 py-1 rounded bg-black/10 border border-white/5">
+                      <span className={`text-[10px] font-bold ${currentStyle.text === 'text-white' ? 'text-white/80' : 'text-slate-500'}`}>Gナビに表示</span>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setEditHeaderMenu(!editHeaderMenu); }}
+                        className={`w-10 h-5 flex items-center rounded-full p-0.5 transition-colors duration-200 focus:outline-none ${editHeaderMenu ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                      >
+                        <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${editHeaderMenu ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                      </button>
+                    </div>
+
+                    <div className="flex justify-center gap-2 mt-1">
                       <button onClick={handleSave} className="flex-1 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex justify-center items-center">
-                        <i data-lucide="check" className="w-4 h-4"></i>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
                       </button>
                       <button onClick={(e) => { e.stopPropagation(); setIsEditing(false); }} className={`flex-1 py-1.5 rounded-lg transition-colors shadow-sm flex justify-center items-center ${currentStyle.text === 'text-white' ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50'}`}>
-                        <i data-lucide="x" className="w-4 h-4"></i>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
                     </div>
                   </div>
@@ -498,7 +687,11 @@
                     >
                       {node.title}
                     </div>
-                    <div className={`inline-flex items-center justify-center ${currentStyle.pathBg} rounded-md px-3 py-1.5 max-w-[95%] border border-white/20`}>
+                    {/* アンカーリンク / URLバッジ */}
+                    <div className={`inline-flex items-center justify-center gap-1 ${currentStyle.pathBg} rounded-md px-3 py-1.5 max-w-[95%] border border-white/20`}>
+                      {isAnchorLink && (
+                        <svg className={`w-3 h-3 ${currentStyle.pathText} shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-3.182.879m4.136-1.517l2.25-2.25m-3-1.125a4.5 4.5 0 00-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397" /></svg>
+                      )}
                       <div 
                         className={`text-[11px] ${currentStyle.pathText} font-mono`}
                         style={{ lineHeight: '1.2', wordBreak: 'break-all', paddingBottom: '1px' }}
@@ -516,7 +709,11 @@
                   onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}
                   className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 w-7 h-7 bg-white border-2 border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 transition-all z-20 shadow-sm"
                 >
-                  {node.isExpanded ? <i data-lucide="chevron-up" className="w-4 h-4"></i> : <i data-lucide="chevron-down" className="w-4 h-4"></i>}
+                  {node.isExpanded ? (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                  )}
                 </button>
               )}
             </div>
@@ -544,23 +741,25 @@
       );
     };
 
-    // メインアプリケーション
     function App() {
-      const [data, setData] = useState(initialData);
+      const [data, setData] = useState(initialData); 
       const [toastMessage, setToastMessage] = useState('');
       const [isExportingPDF, setIsExportingPDF] = useState(false);
       
-      // タブ切り替え用のState ('tree' または 'table')
       const [activeTab, setActiveTab] = useState('tree');
       
-      // PDF名を入力するためのモーダル用State
+      // レイアウト方向のState
+      const isInitialDataLP = initialData[0]?.children?.some(c => c.path && c.path.startsWith('#'));
+      const [layoutDirection, setLayoutDirection] = useState(isInitialDataLP ? 'vertical' : 'horizontal');
+
       const [isNamingModalOpen, setIsNamingModalOpen] = useState(false);
       const [pdfFileName, setPdfFileName] = useState('サイトマップ_ディレクトリマップ');
+
+      const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
       const fileInputRef = useRef(null);
       const containerRef = useRef(null);
 
-      // iPadを含むタッチ＆マウスドラッグ兼用スクロール用ステート
       const [isDragging, setIsDragging] = useState(false);
       const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
@@ -568,7 +767,7 @@
         if (window.lucide) {
           window.lucide.createIcons();
         }
-      }, [data, isExportingPDF, isNamingModalOpen, activeTab]);
+      }, [data, isExportingPDF, isNamingModalOpen, activeTab, isTemplateModalOpen, layoutDirection]);
 
       const showToast = (msg) => {
         setToastMessage(msg);
@@ -640,27 +839,29 @@
         }));
       };
 
-      // ★ 子ページ追加ハンドラー
       const handleAddChild = (parentId) => {
+        const isLP = layoutDirection === 'vertical';
         const newNode = {
           id: generateId(),
-          title: '新規ページ',
-          path: '/new',
-          color: 'green',
+          title: isLP ? '新規セクション' : '新規ページ',
+          path: isLP ? '#section' : '/new-page',
+          color: isLP ? 'greige' : 'green',
           isExpanded: true,
+          isHeaderMenu: isLP ? true : false, 
           children: []
         };
         setData(addChildNode(data, parentId, newNode));
       };
 
-      // ★ 兄弟ページ追加ハンドラー (左・右自由)
       const handleAddSibling = (targetId, direction) => {
+        const isLP = layoutDirection === 'vertical';
         const newNode = {
           id: generateId(),
-          title: '新規ページ',
-          path: '/new',
-          color: 'green',
+          title: isLP ? '新規セクション' : '新規ページ',
+          path: isLP ? '#section' : '/new-page',
+          color: isLP ? 'greige' : 'green',
           isExpanded: true,
+          isHeaderMenu: isLP ? true : false,
           children: []
         };
         setData(addSiblingNode(data, targetId, newNode, direction));
@@ -674,6 +875,19 @@
       const handleToggle = (id) => setData(toggleNode(data, id));
       const handleExpandAll = () => setData(expandAll(data, true));
       const handleCollapseAll = () => setData(expandAll(data, false));
+
+      const handleLoadTemplate = (type) => {
+        if (type === 'multi') {
+          setData(multiPageTemplate);
+          setLayoutDirection('horizontal'); 
+          showToast('標準ウェブサイト構成に切り替えました');
+        } else {
+          setData(singlePageTemplate);
+          setLayoutDirection('vertical'); 
+          showToast('シングルページ(LP)構成に切り替えました');
+        }
+        setIsTemplateModalOpen(false);
+      };
 
       // マウス＆タッチ（iPad用）共通移動処理
       const handleStart = (clientX, clientY) => {
@@ -696,7 +910,6 @@
         containerRef.current.scrollTop = dragStart.scrollTop - walkY;
       };
 
-      // マウスイベント
       const handleMouseDown = (e) => {
         if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.node-card')) return;
         handleStart(e.pageX, e.pageY);
@@ -705,7 +918,6 @@
         handleMove(e.pageX, e.pageY);
       };
 
-      // iPadタッチイベント
       const handleTouchStart = (e) => {
         if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.node-card')) return;
         const touch = e.touches[0];
@@ -718,35 +930,56 @@
 
       const handleEnd = () => setIsDragging(false);
 
-      // 保存・入出力処理
-      const handleExportJson = () => {
-        const jsonStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
+      const handleExportHtml = () => {
+        const currentDataString = JSON.stringify(data, null, 2);
+        let baseSource = document.documentElement.outerHTML;
+        const regex = /const\s+initialData\s*=\s*\[[\s\S]*?\];/g;
+        const newSource = baseSource.replace(regex, `const initialData = ${currentDataString};`);
+
+        const blob = new Blob(["<!DOCTYPE html>\n" + newSource], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'sitemap_export.json';
+        a.download = 'sitemap_builder.html'; 
         a.click();
         URL.revokeObjectURL(url);
-        showToast('JSONファイルをダウンロードしました');
+        showToast('編集データ入りのHTMLファイルをダウンロードしました！');
       };
 
-      const handleImportJson = (e) => {
+      const handleImportFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = (event) => {
+          const content = event.target.result;
           try {
-            const json = JSON.parse(event.target.result);
-            if (Array.isArray(json) && json.length > 0 && json[0].id) {
-              setData(json);
-              showToast('データを読み込みました');
+            if (file.name.endsWith('.html') || content.trim().startsWith('<')) {
+              const regex = /const\s+initialData\s*=\s*(\[[\s\S]*?\]);/m;
+              const match = content.match(regex);
+              if (match && match[1]) {
+                const parsedData = JSON.parse(match[1]);
+                setData(parsedData);
+                const isLP = parsedData[0]?.children?.some(c => c.path && c.path.startsWith('#'));
+                setLayoutDirection(isLP ? 'vertical' : 'horizontal');
+                showToast('保存されたHTMLからデータを復元しました！');
+              } else {
+                throw new Error('HTML内のデータブロックが見つかりませんでした');
+              }
             } else {
-              throw new Error('無効なデータ形式です');
+              const json = JSON.parse(content);
+              if (Array.isArray(json) && json.length > 0 && json[0].id) {
+                setData(json);
+                const isLP = json[0]?.children?.some(c => c.path && c.path.startsWith('#'));
+                setLayoutDirection(isLP ? 'vertical' : 'horizontal');
+                showToast('JSONデータを読み込みました');
+              } else {
+                throw new Error('無効なデータ形式です');
+              }
             }
           } catch (err) {
-            alert("有効なサイトマップJSONファイルではありません。");
+            console.error(err);
+            alert("有効なサイトマップデータ（HTMLまたはJSON）を検出できませんでした。");
           }
           if (fileInputRef.current) fileInputRef.current.value = '';
         };
@@ -758,7 +991,11 @@
           let text = '';
           const indent = '    '.repeat(depth);
           nodes.forEach(node => {
-            text += `${indent}- ${node.title} (${node.path})\n`;
+            let label = node.title;
+            if (node.isHeaderMenu) {
+              label = `[🧭Gナビ掲載] ` + label;
+            }
+            text += `${indent}- ${label} (${node.path})\n`;
             if (node.children && node.children.length > 0) {
               text += generateText(node.children, depth + 1);
             }
@@ -780,7 +1017,6 @@
         document.body.removeChild(textArea);
       };
 
-      // 実際のPDF出力処理
       const executePDFGeneration = async (fileNameToUse) => {
         setIsExportingPDF(true);
         showToast('PDFを作成しています。数秒お待ちください...');
@@ -808,8 +1044,9 @@
 
             const imgData = canvas.toDataURL('image/png');
 
+            const isVerticalMode = layoutDirection === 'vertical';
             const pdf = new window.jspdf.jsPDF({
-              orientation: 'landscape',
+              orientation: isVerticalMode ? 'portrait' : 'landscape',
               unit: 'mm',
               format: 'a4'
             });
@@ -837,7 +1074,6 @@
 
             pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
             
-            // ユーザーが入力したファイル名で保存
             const safeName = (fileNameToUse || 'sitemap_and_directory').trim();
             pdf.save(`${safeName}.pdf`);
             
@@ -850,25 +1086,22 @@
         }, 1000);
       };
 
-      // PDF出力用モーダルオープン
       const handleOpenNamingModal = () => {
         setIsNamingModalOpen(true);
       };
 
-      // PDF出力確定
       const handleConfirmPDF = (e) => {
         e.preventDefault();
         setIsNamingModalOpen(false);
         executePDFGeneration(pdfFileName);
       };
 
-      // PDF出力用ローディング画面
       if (isExportingPDF) {
         return (
           <div className="min-h-screen w-full bg-slate-50 flex flex-col items-center justify-center font-sans">
             <style dangerouslySetInnerHTML={{__html: customCSS}} />
             <div className="flex flex-col items-center gap-6 p-8 bg-white rounded-2xl shadow-xl border border-indigo-100">
-              <i data-lucide="loader-2" className="text-indigo-600 animate-spin w-12 h-12"></i>
+              <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
               <div className="text-center">
                 <h2 className="text-xl font-bold text-slate-800 mb-2">PDFを作成しています...</h2>
                 <p className="text-sm text-slate-500">全体を一枚の画像として処理し、A4サイズに縮小フィットさせています。<br/>そのまま数秒お待ちください。</p>
@@ -880,7 +1113,7 @@
               <div id="pdf-content-capture" className="bg-white font-sans text-slate-800" style={{ width: 'max-content', minWidth: '1200px', padding: '60px' }}>
                 <h1 className="text-3xl font-bold text-center mb-16 text-slate-800">サイトマップ & ディレクトリマップ</h1>
                 <div className="flex justify-center mb-24 w-full">
-                  <div className="org-tree">
+                  <div className={layoutDirection === 'vertical' ? 'vertical-tree' : 'org-tree'}>
                     <ul>
                       {data.map(node => (
                         <OrgNode 
@@ -908,75 +1141,104 @@
 
           {/* ヘッダー */}
           <header className="bg-white border-b border-slate-200 z-30 shadow-sm flex-shrink-0">
-            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
               
-              {/* 左側：ロゴ & タイトル */}
-              <div className="flex items-center gap-2 text-indigo-600">
-                <i data-lucide="layout-template" className="w-6 h-6"></i>
-                <h1 className="text-base sm:text-lg font-bold tracking-tight hidden md:inline">サイトマップビルダー</h1>
+              {/* 左側：ロゴ、タイトル、構成選択 */}
+              <div className="flex items-center gap-2 text-indigo-600 shrink-0">
+                <svg className="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M11.5 5.625c0-1.036.84-1.875 1.875-1.875h5.25c1.036 0 1.875.84 1.875 1.875v12.75c0 1.036-.84 1.875-1.875 1.875h-5.25a1.875 1.875 0 01-1.875-1.875V5.625zM11.5 5.625a9 9 0 00-9 9m9-9a9 9 0 019 9" /></svg>
+                <h1 className="text-base sm:text-lg font-bold tracking-tight hidden md:inline shrink-0">サイトマップビルダー</h1>
+                
+                <button
+                  onClick={() => setIsTemplateModalOpen(true)}
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all"
+                  title="標準複数ページ or シングルLP構成を選択"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a6.72 6.72 0 010 .252c-.008.379.137.751.43.992l1.003.828a1.125 1.125 0 01.26 1.43l-1.296 2.247a1.125 1.125 0 01-1.37.491l-1.216-.456c-.356-.133-.751-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.57 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.252c.007-.379-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.645-.869l.213-1.28z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <span>構成選択</span>
+                </button>
               </div>
 
               {/* 中央：表示画面切り替えタブ */}
               <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner border border-slate-200">
                 <button
                   onClick={() => setActiveTab('tree')}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ${
                     activeTab === 'tree'
                       ? 'bg-white text-indigo-600 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  <i data-lucide="network" className="w-4 h-4"></i>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 111.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
                   <span>ツリー図</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('table')}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ${
                     activeTab === 'table'
                       ? 'bg-white text-indigo-600 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  <i data-lucide="table-properties" className="w-4 h-4"></i>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" /></svg>
                   <span>ディレクトリマップ</span>
                 </button>
               </div>
               
               {/* 右側：操作ボタン */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 {activeTab === 'tree' && (
-                  <div className="hidden lg:flex items-center bg-slate-100 p-1 rounded-lg mr-2">
-                    <button onClick={handleExpandAll} className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white hover:shadow-sm rounded transition-all">全て展開</button>
-                    <button onClick={handleCollapseAll} className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white hover:shadow-sm rounded transition-all">折り畳む</button>
+                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl mr-1 border border-slate-200">
+                    <button 
+                      onClick={() => setLayoutDirection('horizontal')} 
+                      className={`px-2 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
+                        layoutDirection === 'horizontal' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                      title="ツリーを横並びにします"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                      <span className="hidden lg:inline">横並び</span>
+                    </button>
+                    <button 
+                      onClick={() => setLayoutDirection('vertical')} 
+                      className={`px-2 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1 ${
+                        layoutDirection === 'vertical' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                      title="ツリーを縦並びにします"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" /></svg>
+                      <span className="hidden lg:inline">縦並び</span>
+                    </button>
                   </div>
                 )}
 
-                <button onClick={handleCopyText} className="flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="テキストコピー">
-                  <i data-lucide="copy" className="w-4 h-4"></i>
-                  <span className="hidden xl:inline ml-1">コピー</span>
+                <button onClick={handleCopyText} className="flex items-center gap-1 px-2 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="テキストコピー">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376A8.965 8.965 0 0012 12.75a8.965 8.965 0 00-3.75 4.625M18 7.875V11.25m0-3.375a1.125 1.125 0 011.125-1.125h1.5a1.125 1.125 0 011.125 1.125v2.25m-3.75-2.25h1.5M12 3v3.375m0-3.375a1.125 1.125 0 011.125-1.125h1.5A1.125 1.125 0 0115.75 3v2.25m-3.75-2.25h1.5" /></svg>
+                  <span className="hidden sm:inline ml-1">コピー</span>
                 </button>
 
                 <button onClick={handleOpenNamingModal} className="flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="PDF保存">
-                  <i data-lucide="printer" className="w-4 h-4"></i>
-                  <span className="hidden xl:inline ml-1">PDF</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.844l-.324.324a1.5 1.5 0 01-2.122 0l-1.25-1.25a1.5 1.5 0 010-2.122l.324-.324m10.09 10.091l-.324.324a1.5 1.5 0 01-2.122 0l-1.25-1.25a1.5 1.5 0 010-2.122l.324-.324m10.09-10.091l.324-.324a1.5 1.5 0 012.122 0l1.25 1.25a1.5 1.5 0 010 2.122l-.324.324m-10.09-10.09l.324-.324a1.5 1.5 0 012.122 0l1.25 1.25a1.5 1.5 0 010 2.122l-.324.324" /></svg>
+                  <span className="hidden sm:inline ml-1">PDF</span>
                 </button>
 
-                <div className="h-6 w-px bg-slate-200"></div>
+                <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
 
-                <input type="file" accept=".json" className="hidden" ref={fileInputRef} onChange={handleImportJson} />
-                <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="インポート">
-                  <i data-lucide="upload" className="w-4 h-4"></i>
-                  <span className="hidden xl:inline ml-1">読込</span>
+                {/* インポート（読込） */}
+                <input type="file" accept=".html,.json" className="hidden" ref={fileInputRef} onChange={handleImportFile} />
+                <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="ファイル読込">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                  <span className="hidden sm:inline ml-1">読込</span>
                 </button>
-                <button onClick={handleExportJson} className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm" title="JSON保存">
-                  <i data-lucide="download" className="w-4 h-4"></i>
-                  <span className="hidden xl:inline ml-1">保存</span>
+                
+                {/* HTMLとして保存するボタン */}
+                <button onClick={handleExportHtml} className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm" title="HTMLファイルとして保存">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                  <span className="hidden sm:inline ml-1 font-bold">HTML保存</span>
                 </button>
               </div>
             </div>
           </header>
 
-          {/* メイン表示エリア */}
           <main className="flex-1 flex flex-col relative overflow-hidden bg-slate-100/50">
             
             {/* 1. ツリー図キャンバス */}
@@ -998,7 +1260,7 @@
                 }}
               >
                 <div className="min-w-max p-16 pb-32 pt-20">
-                  <div className="org-tree">
+                  <div className={layoutDirection === 'vertical' ? 'vertical-tree' : 'org-tree'}>
                     <ul>
                       {data.map(node => (
                         <OrgNode 
@@ -1025,6 +1287,72 @@
 
           </main>
 
+          {/* テンプレート構成の切り替えモーダル */}
+          {isTemplateModalOpen && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div 
+                className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-lg w-full p-6 animate-fade-in-up"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-3 mb-6 text-slate-800">
+                  <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">構成タイプの切り替え</h3>
+                    <p className="text-xs text-slate-500">本日の打ち合わせに合った初期テンプレートを選択してください</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  {/* 1. 複数ページウェブサイト */}
+                  <button
+                    type="button"
+                    onClick={() => handleLoadTemplate('multi')}
+                    className="flex flex-col items-center text-center p-5 border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/20 rounded-2xl transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    </div>
+                    <span className="font-bold text-slate-800 text-sm mb-1">標準ウェブサイト構成</span>
+                    <span className="text-slate-400 text-[11px] leading-relaxed">複数ページ、下層構造を持つ一般的なコーポレートサイト等の構成</span>
+                  </button>
+
+                  {/* 2. シングルページ（LP） */}
+                  <button
+                    type="button"
+                    onClick={() => handleLoadTemplate('single')}
+                    className="flex flex-col items-center text-center p-5 border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/20 rounded-2xl transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    </div>
+                    <span className="font-bold text-slate-800 text-sm mb-1">シングルページ / LP構成</span>
+                    <span className="text-slate-400 text-[11px] leading-relaxed">1枚ものの縦長の構成で、ページ内セクションを定義する構成（縦型表示推奨）</span>
+                  </button>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mb-6 flex gap-3 text-amber-900 text-xs">
+                  <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  <div>
+                    <span className="font-bold block mb-0.5">注意点</span>
+                    テンプレートを切り替えると、現在作成中のサイトマップ構成は上書きされて失われます。必要であれば切り替え前に右上の「保存」ボタンでファイルをバックアップしてください。
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button 
+                    type="button"
+                    onClick={() => setIsTemplateModalOpen(false)}
+                    className="px-5 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ファイル名入力用のカスタムモーダル */}
           {isNamingModalOpen && (
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -1035,7 +1363,7 @@
               >
                 <div className="flex items-center gap-3 mb-4 text-slate-800">
                   <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600">
-                    <i data-lucide="printer" className="w-5 h-5"></i>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14.25 9.75l-4.5 1.5 1.5 4.5 4.5-1.5-1.5-4.5z" /></svg>
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">PDFをダウンロード</h3>
@@ -1084,6 +1412,7 @@
     }
 
     const customCSS = `
+      /* --- 横並び（組織図型）のスタイル定義 --- */
       .org-tree { display: flex; justify-content: center; }
       .org-tree ul { padding-top: 24px; position: relative; display: flex; justify-content: center; padding-left: 0; margin: 0; }
       .org-tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 24px 12px 0 12px; }
@@ -1102,6 +1431,43 @@
       
       .org-tree > ul { padding-top: 0; }
       .org-tree > ul::before { display: none; }
+
+      /* --- ★ 縦並び（LP縦フロー型）のスタイル定義 --- */
+      .vertical-tree { display: flex; flex-direction: column; align-items: center; }
+      .vertical-tree ul { padding-top: 36px; position: relative; display: flex; flex-direction: column; align-items: center; padding-left: 0; margin: 0; }
+      .vertical-tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 0 0 36px 0; width: 100%; }
+      
+      /* 親から下に伸びる中央線 */
+      .vertical-tree ul::before { 
+        content: ''; 
+        position: absolute; 
+        top: 0; 
+        left: 50%; 
+        border-left: 2px solid #cbd5e1; 
+        width: 0; 
+        height: 36px; 
+        transform: translateX(-50%); 
+      }
+      
+      /* 子要素同士を繋ぐ縦線 */
+      .vertical-tree li::before { 
+        content: ''; 
+        position: absolute; 
+        bottom: 0; 
+        left: 50%; 
+        border-left: 2px solid #cbd5e1; 
+        width: 0; 
+        height: 36px; 
+        transform: translateX(-50%); 
+        display: block !important;
+        border-top: none !important;
+        border-radius: 0 !important;
+      }
+      
+      /* 最後の要素の下の線は不要 */
+      .vertical-tree li:last-child::before { display: none !important; }
+      
+      .vertical-tree li::after { display: none !important; }
     `;
 
     // Render App
