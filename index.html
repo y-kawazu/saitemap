@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web制作ヒアリングシート & デザインプランナー</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome (Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PDFエクスポート用ライブラリ (html2pdf.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- スプレッドシート(Excel)エクスポート用ライブラリ (SheetJS) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+        /* カスタムスクロールバー */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* ----------------------------------------------------
+           全画面プレゼンテーション表示時専用のスケールアップCSS
+           iPadなどで実際のWebサイトに等しい圧倒的な迫力を出します
+           ---------------------------------------------------- */
+        .fullscreen-mode #prev-brand-name {
+            font-size: 1.25rem !important; /* 20px */
+        }
+        .fullscreen-mode #prev-nav-links {
+            font-size: 0.875rem !important; /* 14px */
+            gap: 1.5rem !important;
+        }
+        .fullscreen-mode #prev-nav-cta {
+            padding: 0.5rem 1.25rem !important;
+            border-radius: 0.5rem !important;
+        }
+        .fullscreen-mode #prev-logo-icon {
+            width: 2.5rem !important;
+            height: 2.5rem !important;
+            font-size: 1rem !important;
+        }
+        .fullscreen-mode #prev-hero {
+            padding: 5rem 2rem !important; /* パディングを拡大 */
+        }
+        .fullscreen-mode #prev-hero-badge {
+            font-size: 0.875rem !important;
+            padding: 0.5rem 1.25rem !important;
+        }
+        .fullscreen-mode #prev-hero-title {
+            font-size: 2.5rem !important; /* タイトルを巨大に */
+            max-width: 48rem !important;
+        }
+        .fullscreen-mode #prev-hero-desc {
+            font-size: 1.125rem !important; /* 説明文を大きく */
+            max-width: 36rem !important;
+        }
+        .fullscreen-mode #prev-hero-btn,
+        .fullscreen-mode #prev-hero-btn-sub {
+            padding: 0.75rem 2rem !important;
+            font-size: 1rem !important;
+        }
+        .fullscreen-mode .grid-cols-3 h4 {
+            font-size: 0.875rem !important;
+        }
+        .fullscreen-mode .grid-cols-3 p {
+            font-size: 0.75rem !important;
+        }
+
+        /* ----------------------------------------------------
+           スクリーン表示と印刷表示をCSSのみで確実に切り分けるスタイル
+           これによりJSでのクラス脱着ラグに伴うプレビュー失敗が100%防げます
+           ---------------------------------------------------- */
+        /* 通常画面（スクリーン表示）では印刷用シートを完全に非表示にする */
+        #print-preview-modal {
+            display: none;
+        }
+
+        /* 印刷用CSS（A4縦1枚に完全に収まるようにマージンやパディングを極限最適化） */
+        @media print {
+            /* 印刷時：通常画面全体の全パーツ、ヘッダー、モーダル外枠、コントロールボタンを完全に隠す */
+            #main-header, main, #full-screen-floating-selector, #custom-modal, .no-print, #print-preview-header {
+                display: none !important;
+            }
+            /* 印刷時：印刷用コンテナのみを確実に用紙全面に表示する */
+            #print-preview-modal {
+                display: block !important;
+                position: absolute !important;
+                inset: 0 !important;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+            }
+            #print-sheet-container {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                background: white !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 9.5px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- ヘッダー -->
+    <header id="main-header" class="bg-white border-b border-slate-200 sticky top-0 z-40 no-print">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- タイトル・管理者（「リセット」ボタンを取り外しました） -->
+                <div class="flex items-center space-x-3">
+                    <button onclick="openAdminLogin()" class="text-slate-500 hover:text-indigo-600 transition duration-150 px-3 py-2 rounded-lg text-sm font-medium flex items-center space-x-1 hover:bg-indigo-50">
+                        <i class="fa-solid fa-lock"></i>
+                        <span class="hidden sm:inline">管理者設定</span>
+                    </button>
+                </div>
+                <!-- 各種ダウンロード・出力ボタン -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportSpreadsheet()" class="bg-emerald-600 hover:bg-emerald-700 text-white transition duration-150 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center space-x-1.5 shadow-sm shadow-emerald-100">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>スプレッドシート</span>
+                    </button>
+                    <button onclick="exportPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white transition duration-150 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center space-x-1.5 shadow-sm shadow-indigo-100">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>PDF保存</span>
+                    </button>
+                    <button onclick="openPrintPreview()" class="bg-slate-700 hover:bg-slate-800 text-white transition duration-150 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center space-x-1.5 shadow-sm">
+                        <i class="fa-solid fa-print"></i>
+                        <span>印刷</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メメインコンテンツ -->
+    <main class="flex-grow flex flex-col lg:flex-row max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-6 no-print">
+        
+        <!-- 左側：フォームステップエリア (幅 42%) -->
+        <div id="form-container" class="w-full lg:w-[42%] flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[680px]">
+            
+            <!-- ステップ進捗インジケーター -->
+            <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 overflow-x-auto whitespace-nowrap">
+                <div class="flex items-center space-x-2 sm:space-x-4 min-w-[600px] justify-between">
+                    <!-- Step 1-2 -->
+                    <button onclick="jumpToStep(1)" id="step-btn-1" class="flex items-center space-x-2 text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-1 focus:outline-none transition">
+                        <span class="w-6 h-6 flex items-center justify-center bg-indigo-600 text-white rounded-full text-xs">1</span>
+                        <span>基本・現状</span>
+                    </button>
+                    <div class="h-0.5 bg-slate-200 w-6 flex-shrink-0"></div>
+                    <!-- Step 3-4 -->
+                    <button onclick="jumpToStep(2)" id="step-btn-2" class="flex items-center space-x-2 text-sm font-medium text-slate-400 hover:text-slate-600 pb-2 px-1 focus:outline-none transition">
+                        <span class="w-6 h-6 flex items-center justify-center bg-slate-200 text-slate-600 rounded-full text-xs">2</span>
+                        <span>目的・ターゲット</span>
+                    </button>
+                    <div class="h-0.5 bg-slate-200 w-6 flex-shrink-0"></div>
+                    <!-- Step 5-6 -->
+                    <button onclick="jumpToStep(3)" id="step-btn-3" class="flex items-center space-x-2 text-sm font-medium text-slate-400 hover:text-slate-600 pb-2 px-1 focus:outline-none transition">
+                        <span class="w-6 h-6 flex items-center justify-center bg-slate-200 text-slate-600 rounded-full text-xs">3</span>
+                        <span>構成・素材</span>
+                    </button>
+                    <div class="h-0.5 bg-slate-200 w-6 flex-shrink-0"></div>
+                    <!-- Step 7 -->
+                    <button onclick="jumpToStep(4)" id="step-btn-4" class="flex items-center space-x-2 text-sm font-medium text-slate-400 hover:text-slate-600 pb-2 px-1 focus:outline-none transition">
+                        <span class="w-6 h-6 flex items-center justify-center bg-slate-200 text-slate-600 rounded-full text-xs">4</span>
+                        <span>デザイン色</span>
+                    </button>
+                    <div class="h-0.5 bg-slate-200 w-6 flex-shrink-0"></div>
+                    <!-- Step 8 -->
+                    <button onclick="jumpToStep(5)" id="step-btn-5" class="flex items-center space-x-2 text-sm font-medium text-slate-400 hover:text-slate-600 pb-2 px-1 focus:outline-none transition">
+                        <span class="w-6 h-6 flex items-center justify-center bg-slate-200 text-slate-600 rounded-full text-xs">5</span>
+                        <span>日程・予算</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- フォーム各ステップのコンテンツ -->
+            <div class="flex-grow p-6 overflow-y-auto max-h-[640px]">
+                
+                <!-- STEP 1〜2: 基本情報・現在のHP状況 -->
+                <div id="step-content-1" class="space-y-5">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">STEP 1 & 2</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-1">基本情報・現在のHP状況</h2>
+                        <p class="text-sm text-slate-500 mt-1">クライアント様の基本情報、企業データ、および既存サイトの課題を確認します。</p>
+                    </div>
+
+                    <!-- 会社名 / 担当者名 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">会社名 / 屋号 <span class="text-red-500">*</span></label>
+                            <input type="text" id="company_name" oninput="updatePreview()" placeholder="例：株式会社サンプルフード" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">代表者名</label>
+                            <input type="text" id="company_rep" oninput="updatePreview()" placeholder="例：代表取締役 山田 太郎" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <!-- 所在地 -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">所在地</label>
+                        <input type="text" id="company_address" oninput="updatePreview()" placeholder="例：福岡県福岡市中央区天神1丁目1-1" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                    </div>
+
+                    <!-- 法人番号 / 業種 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">法人番号</label>
+                            <input type="text" id="corporate_number" oninput="updatePreview()" placeholder="13桁の法人番号" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">業種</label>
+                            <input type="text" id="company_industry" oninput="updatePreview()" placeholder="例：建設業、ITサービス、製造業など" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <!-- 建設業許可 / 資本金 / 電話番号 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">建設業許可</label>
+                            <input type="text" id="construction_license" oninput="updatePreview()" placeholder="例：〇〇知事 許可 第〇号" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-xs">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">資本金</label>
+                            <input type="text" id="company_capital" oninput="updatePreview()" placeholder="例：1000万円" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-xs">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">電話番号</label>
+                            <input type="text" id="company_phone" oninput="updatePreview()" placeholder="例：092-123-4567" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-xs">
+                        </div>
+                    </div>
+
+                    <!-- ご担当者 / メール / 日付 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ご担当者名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="client_name" oninput="updatePreview()" placeholder="例：鈴木 健二 様" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">打合せ日</label>
+                            <input type="date" id="meeting_date" oninput="updatePreview()" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">メール</label>
+                            <input type="email" id="client_email" placeholder="example@domain.com" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-xs">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-4">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">現在のホームページの有無</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition">
+                                <span class="text-sm font-medium">現在なし</span>
+                                <input type="radio" name="current_hp_status" value="なし" checked onclick="toggleHPUri(false); updatePreview();" class="text-indigo-600 focus:ring-indigo-500">
+                            </label>
+                            <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition">
+                                <span class="text-sm font-medium">リニューアル</span>
+                                <input type="radio" name="current_hp_status" value="リニューアル" onclick="toggleHPUri(true); updatePreview();" class="text-indigo-600 focus:ring-indigo-500">
+                            </label>
+                            <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition">
+                                <span class="text-sm font-medium">サブサイト構築</span>
+                                <input type="radio" name="current_hp_status" value="サブサイト" onclick="toggleHPUri(true); updatePreview();" class="text-indigo-600 focus:ring-indigo-500">
+                            </label>
+                        </div>
+                        <div id="hp_url_container" class="mt-3 hidden">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">現在のホームページURL</label>
+                            <input type="text" id="current_hp_url" placeholder="https://example.com" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-4">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">解決したい課題（複数選択可）</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                                <input type="checkbox" name="pain_points" value="デザインが古い・スマホ未対応" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">デザインが古い・スマホ未対応</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                                <input type="checkbox" name="pain_points" value="集客・お問い合わせが少ない" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">集客・お問い合わせが少ない</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                                <input type="checkbox" name="pain_points" value="自社で簡単に更新ができない" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">自社で更新ができない</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                                <input type="checkbox" name="pain_points" value="採用・求職者からの応募が少ない" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">採用・リクルートに繋がらない</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                                <input type="checkbox" name="pain_points" value="公式なサイト（会社名刺代わり）がない" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">信頼性（名刺代わり）の欠如</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                                <input type="checkbox" name="pain_points" value="商品・サービスの魅力が伝わりにくい" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">商品・サービスの魅力不足</span>
+                            </label>
+                        </div>
+                        <div class="mt-3">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">その他の具体的な課題・要望</label>
+                            <textarea id="custom_pain_points" oninput="updatePreview()" rows="2" placeholder="具体的に気になる点があれば自由に入力してください" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3〜4: 目的・ターゲット -->
+                <div id="step-content-2" class="space-y-6 hidden">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">STEP 3 & 4</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-1">目的・ターゲット設定</h2>
+                        <p class="text-sm text-slate-500 mt-1">制作の主軸となる「誰に」「何を届けるか」を整理します。ここを固めることでデザインに一貫性が生まれます。</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">ホームページ制作の主たる目的</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <label class="border border-slate-200 rounded-xl p-3 flex items-start space-x-3 cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="main_goal" value="新規問い合わせ・サービス申込みの獲得" checked onclick="updatePreview()" class="mt-1 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <span class="block text-sm font-semibold">問い合わせ・獲得</span>
+                                    <span class="block text-xs text-slate-400">見込み顧客からの連絡・見積依頼を増やす</span>
+                                </div>
+                            </label>
+                            <label class="border border-slate-200 rounded-xl p-3 flex items-start space-x-3 cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="main_goal" value="優秀な求職者からの直接応募・採用の強化" onclick="updatePreview()" class="mt-1 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <span class="block text-sm font-semibold">採用活動・リクルート強化</span>
+                                    <span class="block text-xs text-slate-400">求職者に向けて魅力や社風をアピール</span>
+                                </div>
+                            </label>
+                            <label class="border border-slate-200 rounded-xl p-3 flex items-start space-x-3 cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="main_goal" value="会社の信頼性向上・ネット上の看板機能" onclick="updatePreview()" class="mt-1 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <span class="block text-sm font-semibold">ブランディング・信頼性</span>
+                                    <span class="block text-xs text-slate-400">会社紹介や活動状況を伝え、信用を得る</span>
+                                </div>
+                            </label>
+                            <label class="border border-slate-200 rounded-xl p-3 flex items-start space-x-3 cursor-pointer hover:bg-slate-50 transition">
+                                <input type="radio" name="main_goal" value="商品・サービスの直接ネット販売（EC・予約）" onclick="updatePreview()" class="mt-1 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <span class="block text-sm font-semibold">オンライン販売・成約</span>
+                                    <span class="block text-xs text-slate-400">通販機能やオンラインでの予約受注など</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-5 space-y-4">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">どんなターゲットに来てほしいか？</label>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">メイン年齢層・性別</label>
+                                <input type="text" id="target_demographics" oninput="updatePreview()" placeholder="例：30代〜40代の働く女性、ファミリー層" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">どのような立場・環境の人か</label>
+                                <input type="text" id="target_persona" oninput="updatePreview()" placeholder="例：中小企業のIT部門責任者、新築を考えている夫婦" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ターゲットが検索しそうなキーワード（予想）</label>
+                            <input type="text" id="target_keywords" oninput="updatePreview()" placeholder="例：「福岡注文住宅 自然素材」「SaaS 労務管理 効率化」" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ターゲットの主な悩み・ニーズ</label>
+                            <textarea id="target_pain_points" oninput="updatePreview()" rows="2" placeholder="例：現在利用しているソフトが難しくて使いこなせない。おしゃれだけど高すぎない、自然素材 of 木の家を探している。" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 5〜6: ページ構成・素材 -->
+                <div id="step-content-3" class="space-y-6 hidden">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">STEP 5 & 6</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-1">ページ構成・提供素材の確認</h2>
+                        <p class="text-sm text-slate-500 mt-1">必要なウェブページと、制作に必要な「素材」が揃っているか確認します。</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">必要なページ（複数選択）</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="トップページ" checked disabled class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm font-semibold text-slate-700">トップページ</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="サービス紹介" checked onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">サービス紹介</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="会社概要" checked onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">会社概要 / Profile</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="実績・事例" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">制作実績 / 事例</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="お知らせ" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">お知らせ / コラム</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="採用情報" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">採用情報 / Recruit</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="料金プラン" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">プラン・料金表</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="よくあるご質問" onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">よくあるご質問 (FAQ)</span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer border border-slate-100">
+                                <input type="checkbox" name="pages" value="お問い合わせ" checked onchange="updatePreview()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-sm">お問い合わせ</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-3">提供可能・ご用意のある素材</label>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-50 pb-2">
+                                <span class="text-sm font-medium">1. 企業・ブランドのロゴ</span>
+                                <select id="material_logo" onchange="updatePreview()" class="text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                    <option value="データ提供可能 (AI/PNG)">提供可能 (AI/PNG)</option>
+                                    <option value="ロゴはあるが形式不明">あるが形式不明</option>
+                                    <option value="新規ロゴ作成を希望">新規作成を依頼したい</option>
+                                    <option value="テキストでの表現希望">文字での表現を希望</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex items-center justify-between border-b border-slate-50 pb-2">
+                                <span class="text-sm font-medium">2. 写真・グラフィック画像</span>
+                                <select id="material_photo" onchange="updatePreview()" class="text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                    <option value="実撮影写真を提供可能">実写真を提供可能</option>
+                                    <option value="出張写真撮影を希望">出張写真撮影を依頼したい</option>
+                                    <option value="ストックフォト（素材）を使用">素材サイトをメインで使用</option>
+                                    <option value="素材収集中">集めている途中</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex items-center justify-between border-b border-slate-50 pb-2">
+                                <span class="text-sm font-medium">3. 掲載原稿テキスト</span>
+                                <select id="material_text" onchange="updatePreview()" class="text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                    <option value="自社で執筆・用意可能">自社で執筆・提供可能</option>
+                                    <option value="構成案を元に共同作成希望">制作会社と共同で作成</option>
+                                    <option value="既存資料から流用">カタログや資料から流用</option>
+                                    <option value="プロによる代筆（取材含む）を希望">プロによる代筆を希望</option>
+                                </select>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">4. ドメイン・サーバー環境</span>
+                                <select id="material_server" onchange="updatePreview()" class="text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                    <option value="契約済 of 流用">社内環境をそのまま流用</option>
+                                    <option value="新規取得・契約代行を希望">新規取得・代行を希望</option>
+                                    <option value="ドメインのみ有・サーバー新規">ドメインのみ有り / サーバー新規</option>
+                                    <option value="わからないので提案希望">わからないので提案希望</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 7: デザイン・カラーパレット -->
+                <div id="step-content-4" class="space-y-6 hidden">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">STEP 7</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-1">デザインの方向性・配色</h2>
+                        <p class="text-sm text-slate-500 mt-1">「70:25:5法則」に則った、豊富な全100種類のバリエーションから選び、全体のトンマナを決定します。</p>
+                        <p class="text-xs text-slate-400 mt-0.5">※「ベースカラー（全体 70%）」「メインカラー（印象 25%）」「アクセントカラー（惹きつけ 5%）」で構成されています。</p>
+                    </div>
+
+                    <!-- パレット用カテゴリタブフィルター -->
+                    <div class="flex flex-wrap gap-1.5 mb-2 border-b border-slate-100 pb-3" id="palette-filter-tabs">
+                        <button onclick="filterPalettes('all')" id="tab-all" class="text-xs px-3 py-1.5 rounded-full font-semibold transition bg-indigo-600 text-white">すべて</button>
+                        <button onclick="filterPalettes('pale')" id="tab-pale" class="text-xs px-3 py-1.5 rounded-full font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">グレージュ・淡色</button>
+                        <button onclick="filterPalettes('mature')" id="tab-mature" class="text-xs px-3 py-1.5 rounded-full font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">渋い・和風</button>
+                        <button onclick="filterPalettes('natural')" id="tab-natural" class="text-xs px-3 py-1.5 rounded-full font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">北欧・ナチュラル</button>
+                        <button onclick="filterPalettes('corporate')" id="tab-corporate" class="text-xs px-3 py-1.5 rounded-full font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">ビジネス・モダン</button>
+                        <button onclick="filterPalettes('pop')" id="tab-pop" class="text-xs px-3 py-1.5 rounded-full font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200">ポップ・個性派</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[420px] overflow-y-auto pr-1" id="color-palette-list">
+                    </div>
+                </div>
+
+                <!-- STEP 8: スケジュール・予算 -->
+                <div id="step-content-5" class="space-y-6 hidden">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">STEP 8</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-1">スケジュール・ご予算・保守運用</h2>
+                        <p class="text-sm text-slate-500 mt-1">最後に納期、ご予算レンジ、公開後のメンテナンスプランを決定し、要件定義を完了させます。</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">公開希望時期（希望納期）</label>
+                            <input type="text" id="schedule_date" oninput="updatePreview()" placeholder="例：3ヶ月後、〇月頃までに" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">想定ご予算レンジ</label>
+                            <select id="budget_level" onchange="updatePreview()" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm bg-white">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">公開後の運用・管理について</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <label class="border border-slate-200 rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:bg-slate-50 transition">
+                                <span class="text-sm font-semibold mb-1">自社メインで保守</span>
+                                <span class="text-xs text-slate-400 mb-2">自社でお知らせや軽微な修正を行いたい</span>
+                                <input type="radio" name="operation_style" value="自社での自立運用を希望" checked onclick="updatePreview()" class="self-end text-indigo-600 focus:ring-indigo-500">
+                            </label>
+                            <label class="border border-slate-200 rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:bg-slate-50 transition">
+                                <span class="text-sm font-semibold mb-1">完全おまかせ保守</span>
+                                <span class="text-xs text-slate-400 mb-2">更新や障害対応はすべて制作会社に依頼したい</span>
+                                <input type="radio" name="operation_style" value="保守管理をすべて代行依頼" onclick="updatePreview()" class="self-end text-indigo-600 focus:ring-indigo-500">
+                            </label>
+                            <label class="border border-slate-200 rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:bg-slate-50 transition">
+                                <span class="text-sm font-semibold mb-1">一部のみサポート</span>
+                                <span class="text-xs text-slate-400 mb-2">難易度の高い修正やSEOのみアドバイスが欲しい</span>
+                                <input type="radio" name="operation_style" value="一部サポート＆相談アドバイス型保守" onclick="updatePreview()" class="self-end text-indigo-600 focus:ring-indigo-500">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">その他特記事項・ミーティングメモ</label>
+                        <textarea id="additional_notes" oninput="updatePreview()" rows="3" placeholder="他社比較状況、デザインへのこだわり、打ち合わせで気づいた点を何でも書き残せます." class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 flex justify-between items-center">
+                <button id="prev-btn" onclick="prevStep()" class="px-4 py-2 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition duration-150 flex items-center space-x-2 invisible">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>戻る</span>
+                </button>
+                <div class="text-xs text-slate-400 font-medium">
+                    STEP <span id="current-step-indicator">1</span> / 5
+                </div>
+                <button id="next-btn" onclick="nextStep()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition duration-150 flex items-center space-x-2 shadow-sm shadow-indigo-100">
+                    <span>次へ進む</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 右側：リアルタイムWebサイトプレビュー (幅 58%) -->
+        <div id="preview-outer-container" class="w-full lg:w-[58%] flex flex-col space-y-4">
+            <!-- プレビュー用インフォメーションヘッダー -->
+            <div id="preview-header" class="bg-slate-900 rounded-2xl p-4 text-slate-100 flex items-center justify-between shadow-sm">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                    <span class="text-xs text-slate-400 font-mono ml-2">Live Web Design Preview</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs bg-slate-800 text-indigo-400 px-3 py-1 rounded-full font-semibold">70 : 25 : 5 法則</span>
+                    <button id="open-full-btn" onclick="toggleFullscreenPreview()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg font-bold flex items-center space-x-1 transition shadow-sm">
+                        <i class="fa-solid fa-expand"></i>
+                        <span>全画面表示</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- プレビュー本体 -->
+            <div id="web-preview-card" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-grow flex flex-col min-h-[620px] transition-all duration-300 relative">
+                
+                <button id="close-full-btn" onclick="toggleFullscreenPreview()" class="hidden absolute top-6 right-6 z-50 bg-slate-900/90 text-white px-4 py-2.5 rounded-xl font-bold shadow-lg hover:bg-slate-800 flex items-center space-x-2 transition border border-slate-700">
+                    <i class="fa-solid fa-compress"></i>
+                    <span>プレビューを閉じる</span>
+                </button>
+
+                <!-- ダミーナビゲーション -->
+                <div id="prev-nav" class="px-6 py-4 flex justify-between items-center transition-colors duration-300" style="background-color: #F8FAFC;">
+                    <div class="flex items-center space-x-3">
+                        <div id="prev-logo-icon" class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm text-white" style="background-color: #1E3A8A;">W</div>
+                        <span id="prev-brand-name" class="font-bold text-base" style="color: #111827;">株式会社〇〇</span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-xs font-semibold" id="prev-nav-links" style="color: #111827;">
+                        <span class="hover:underline cursor-pointer">HOME</span>
+                        <span class="hover:underline cursor-pointer" id="nav-item-services">サービス</span>
+                        <span class="hover:underline cursor-pointer" id="nav-item-company">会社情報</span>
+                        <span class="px-3 py-1.5 rounded-lg text-white font-bold" id="prev-nav-cta" style="background-color: #F59E0B;">お問合せ</span>
+                    </div>
+                </div>
+
+                <!-- ヒーローセクション -->
+                <div id="prev-hero" class="p-10 flex-grow flex flex-col justify-center items-center text-center transition-colors duration-300 border-b border-slate-100" style="background-color: #F8FAFC;">
+                    <span class="text-xs font-bold tracking-wider uppercase px-3 py-1.5 rounded-full" id="prev-hero-badge" style="background-color: rgba(30,58,138,0.1); color: #1E3A8A;">Web Design Framework</span>
+                    
+                    <h2 id="prev-hero-title" class="text-2xl sm:text-3xl font-black mt-4 leading-tight max-w-xl" style="color: #111827;">
+                        想いをかたちにする、新しいデザイン
+                    </h2>
+                    
+                    <p id="prev-hero-desc" class="text-sm text-slate-500 mt-3 max-w-md leading-relaxed">
+                        何のためにウェブサイトを作るのか。どのようなターゲットに届けるのかをデザインします。
+                    </p>
+
+                    <div class="mt-6 flex space-x-4">
+                        <button id="prev-hero-btn" class="px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-md transition-transform hover:scale-105" style="background-color: #1E3A8A;">
+                            詳しく見る
+                        </button>
+                        <button id="prev-hero-btn-sub" class="px-6 py-2.5 rounded-xl text-sm font-bold border hover:bg-slate-50 transition" style="border-color: #1E3A8A; color: #1E3A8A;">
+                            お問い合わせ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- コンテンツプレビュー (3セグメント) -->
+                <div class="p-6 grid grid-cols-3 gap-4 bg-white">
+                    <div class="border border-slate-100 rounded-xl p-4 text-center shadow-sm">
+                        <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs text-white font-bold mb-2" id="prev-feat-1-icon" style="background-color: #F59E0B;">1</div>
+                        <h4 class="text-xs font-bold sm:text-sm" style="color: #111827;">課題解決</h4>
+                        <p class="text-[10px] text-slate-400 mt-1 leading-normal">現在のお悩みをホームページの力でクリアに解決。</p>
+                    </div>
+                    <div class="border border-slate-100 rounded-xl p-4 text-center shadow-sm">
+                        <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs text-white font-bold mb-2" id="prev-feat-2-icon" style="background-color: #1E3A8A;">2</div>
+                        <h4 class="text-xs font-bold sm:text-sm" style="color: #111827;">ターゲット最適化</h4>
+                        <p class="text-[10px] text-slate-400 mt-1 leading-normal">ターゲットを惹きつけるレイアウトと導線設計。</p>
+                    </div>
+                    <div class="border border-slate-100 rounded-xl p-4 text-center shadow-sm">
+                        <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs text-white font-bold mb-2" id="prev-feat-3-icon" style="background-color: #1E3A8A;">3</div>
+                        <h4 class="text-xs font-bold sm:text-sm" style="color: #111827;">配色黄金比率</h4>
+                        <p class="text-[10px] text-slate-400 mt-1 leading-normal">70%:25%:5%のカラー黄金法則で美しさを保証。</p>
+                    </div>
+                </div>
+
+                <!-- プレビューダッシュボード要約 -->
+                <div class="bg-slate-50 p-5 border-t border-slate-100 text-xs flex justify-between items-center">
+                    <div>
+                        <span class="text-slate-400 font-bold block text-[10px]">SELECTED COLOR PALETTE</span>
+                        <span class="font-bold text-slate-800 text-sm" id="prev-palette-name">信頼・コーポレート</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-5 h-5 rounded-md border" id="prev-indicator-base" style="background-color: #F8FAFC;"></span>
+                        <span class="text-xs text-slate-500 font-bold">70%</span>
+                        <span class="w-5 h-5 rounded-md border" id="prev-indicator-main" style="background-color: #1E3A8A;"></span>
+                        <span class="text-xs text-slate-500 font-bold">25%</span>
+                        <span class="w-5 h-5 rounded-md border" id="prev-indicator-accent" style="background-color: #F59E0B;"></span>
+                        <span class="text-xs text-slate-500 font-bold">5%</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 全画面表示中のフローティングカラーセレクター（100色の切り替え・横スクロール仕様） -->
+    <div id="full-screen-floating-selector" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-slate-700 w-[92%] max-w-4xl flex flex-col space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs gap-2 border-b border-slate-800 pb-2">
+            <span class="font-bold text-slate-200"><i class="fa-solid fa-palette mr-1.5 text-indigo-400"></i> デザインカラー・シミュレーター (100色横スクロール)</span>
+            <div class="flex flex-wrap gap-1 bg-slate-800 p-0.5 rounded-lg self-start sm:self-auto">
+                <button onclick="filterPalettesFull('all')" id="full-tab-all" class="px-2.5 py-1 rounded text-[10px] font-bold bg-indigo-600 text-white transition">すべて</button>
+                <button onclick="filterPalettesFull('pale')" id="full-tab-pale" class="px-2.5 py-1 rounded text-[10px] font-bold text-slate-400 hover:text-white transition">グレージュ・淡色</button>
+                <button onclick="filterPalettesFull('mature')" id="full-tab-mature" class="px-2.5 py-1 rounded text-[10px] font-bold text-slate-400 hover:text-white transition">渋い・和風</button>
+                <button onclick="filterPalettesFull('natural')" id="full-tab-natural" class="px-2.5 py-1 rounded text-[10px] font-bold text-slate-400 hover:text-white transition">北欧</button>
+                <button onclick="filterPalettesFull('corporate')" id="full-tab-corporate" class="px-2.5 py-1 rounded text-[10px] font-bold text-slate-400 hover:text-white transition">ビジネス</button>
+                <button onclick="filterPalettesFull('pop')" id="full-tab-pop" class="px-2.5 py-1 rounded text-[10px] font-bold text-slate-400 hover:text-white transition">ポップ</button>
+            </div>
+        </div>
+        <div class="flex space-x-3 overflow-x-auto pb-1" id="full-screen-mini-palette-list">
+        </div>
+    </div>
+
+    <!-- ----------------------------------------------------
+       要件最終確認プレビュー画面（影付き・A4縦仕様の美しいサマリーシートモーダル）
+       iPadやセキュリティ制約環境のプリントバグを100%解決します
+       ---------------------------------------------------- -->
+    <div id="print-preview-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm overflow-y-auto no-print flex flex-col justify-start items-center p-4 md:p-8">
+        <!-- プレビューモーダルコントロールヘッダー -->
+        <div id="print-preview-header" class="max-w-[210mm] w-full mb-4 flex justify-between items-center bg-slate-900 text-white px-6 py-3 rounded-xl shadow-lg">
+            <span class="text-xs sm:text-sm font-bold flex items-center space-x-2">
+                <i class="fa-solid fa-file-invoice text-indigo-400"></i>
+                <span>要件定義 最終サマリーシート (A4縦プレビュー)</span>
+            </span>
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+                <button onclick="exportSpreadsheet()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] sm:text-xs px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1 transition">
+                    <i class="fa-solid fa-file-excel"></i><span>スプレッドシート</span>
+                </button>
+                <button onclick="exportPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] sm:text-xs px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1 transition">
+                    <i class="fa-solid fa-file-pdf"></i><span>PDF保存</span>
+                </button>
+                <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white text-[11px] sm:text-xs px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1 transition">
+                    <i class="fa-solid fa-print"></i><span>印刷</span>
+                </button>
+                <button onclick="closePreviewModal()" class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1 transition">
+                    <i class="fa-solid fa-xmark"></i><span>閉じる</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 印刷＆PDFエクスポート用紙（A4縦1枚） -->
+        <div id="print-sheet-container" class="bg-white max-w-[210mm] w-full p-8 rounded-2xl shadow-2xl text-slate-800 flex-grow min-h-[297mm]">
+            <!-- 印刷用ヘッダー -->
+            <div class="border-b-2 border-slate-900 pb-2 flex justify-between items-end mb-3">
+                <div>
+                    <p class="text-[8px] tracking-wider text-slate-400 uppercase font-bold">Website Requirements Summary Sheet (A4 portrait)</p>
+                    <h1 class="text-base font-black text-slate-900 leading-tight">Web制作要件定義・ヒアリングシート</h1>
+                </div>
+                <div class="text-right text-[9px] text-slate-500">
+                    <p>打合せ日: <span id="print_meeting_date">----年--月--日</span></p>
+                    <p class="text-[7px] text-slate-400">70:25:5 配色プランニング準拠</p>
+                </div>
+            </div>
+
+            <!-- 2カラムコンテンツ構成 -->
+            <div class="grid grid-cols-2 gap-3">
+                
+                <!-- 左側カラム -->
+                <div class="space-y-2">
+                    <!-- 1. 顧客企業データ -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded flex justify-between">
+                            <span>1. 顧客企業情報</span>
+                        </h3>
+                        <table class="w-full text-[8.5px] mt-1 border-collapse">
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold w-1/3">会社名・屋号</td><td class="py-0.5 font-bold text-slate-800" id="print_company_name">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-800" id="print_company_rep">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">所在地</td><td class="py-0.5 text-slate-800 leading-tight" id="print_company_address">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">法人番号</td><td class="py-0.5 text-slate-800" id="print_corporate_number">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">業種 / 建設業許可</td><td class="py-0.5 text-slate-800" id="print_industry_license">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">資本金 / TEL</td><td class="py-0.5 text-slate-800" id="print_capital_phone">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">ご担当者名</td><td class="py-0.5 text-slate-800" id="print_client_name">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">連絡先</td><td class="py-0.5 text-slate-800" id="print_client_email">-</td></tr>
+                            <tr><td class="py-0.5 text-slate-400 font-bold">現HP状況</td><td class="py-0.5 text-slate-800"><span id="print_current_hp">-</span> <span class="text-[7.5px] text-slate-500" id="print_current_hp_url"></span></td></tr>
+                        </table>
+                    </div>
+
+                    <!-- 2. 現状の課題 -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">2. 解決したい現状の課題</h3>
+                        <ul class="list-disc list-inside text-[8.5px] text-slate-700 space-y-0.5 mt-1" id="print_pain_points">
+                            <li>(課題が選択されていません)</li>
+                        </ul>
+                        <div class="text-[8px] text-slate-600 bg-slate-50 p-1 rounded border border-slate-100 mt-1" id="print_custom_pain_points_box">
+                            <strong>個別要望:</strong> <span id="print_custom_pain_points">特なし</span>
+                        </div>
+                    </div>
+
+                    <!-- 5. サイトマップ / 必要構成 -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">3. サイトマップ・必要構成</h3>
+                        <div class="flex flex-wrap gap-1 mt-1" id="print_pages">
+                            <!-- page_badge -->
+                        </div>
+                    </div>
+
+                    <!-- 6. 準備いただく提供素材 -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">4. ご用意いただく提供素材</h3>
+                        <table class="w-full text-[8.5px] mt-1">
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold w-1/3">企業ロゴ</td><td class="py-0.5 text-slate-800" id="print_material_logo">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-800" id="print_material_photo">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">掲載原稿</td><td class="py-0.5 text-slate-800" id="print_material_text">-</td></tr>
+                            <tr><td class="py-0.5 text-slate-400 font-bold">インフラ環境</td><td class="py-0.5 text-slate-800" id="print_material_server">-</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 右側カラム -->
+                <div class="space-y-2">
+                    <!-- 3. 制作の目的 -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">5. 制作の主な目的（ゴール）</h3>
+                        <div class="p-1.5 border border-slate-100 rounded bg-indigo-50/50 mt-1">
+                            <p class="text-[8.5px] font-bold text-indigo-900" id="print_main_goal">-</p>
+                        </div>
+                    </div>
+
+                    <!-- 4. ターゲット設計 -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">6. ターゲット設計</h3>
+                        <table class="w-full text-[8.5px] mt-1">
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold w-1/3">ターゲット層</td><td class="py-0.5 text-slate-800" id="print_target_demographics">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">想定人物像</td><td class="py-0.5 text-slate-800" id="print_target_persona">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">検索ワード</td><td class="py-0.5 text-slate-800" id="print_target_keywords">-</td></tr>
+                            <tr><td class="py-0.5 text-slate-400 font-bold">顧客ニーズ</td><td class="py-0.5 text-slate-800 leading-tight" id="print_target_pain_points">-</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- 7. デザインコンセプト＆カラー -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">7. デザイン・配色方針</h3>
+                        <div class="p-1.5 border border-slate-200 rounded-lg flex items-center justify-between mt-1">
+                            <div class="max-w-[130px]">
+                                <p class="text-[9px] font-bold text-slate-800 leading-tight" id="print_palette_name">-</p>
+                                <p class="text-[7.5px] text-slate-400 mt-0.5 leading-tight" id="print_palette_desc">-</p>
+                            </div>
+                            <div class="flex space-x-0.5">
+                                <div class="w-6.5 h-6.5 rounded border flex flex-col justify-end p-0.5 text-[6.5px] font-bold text-center leading-none" id="print_color_base">70%</div>
+                                <div class="w-6.5 h-6.5 rounded text-white flex flex-col justify-end p-0.5 text-[6.5px] font-bold text-center leading-none" id="print_color_main">25%</div>
+                                <div class="w-6.5 h-6.5 rounded text-white flex flex-col justify-end p-0.5 text-[6.5px] font-bold text-center leading-none" id="print_color_accent">5%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. 日程・予算・保守管理 -->
+                    <div class="print-section">
+                        <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">8. スケジュール・予算・運用保守</h3>
+                        <table class="w-full text-[8.5px] mt-1">
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold w-1/3">希望納期</td><td class="py-0.5 text-slate-800" id="print_schedule_date">-</td></tr>
+                            <tr class="border-b border-slate-100"><td class="py-0.5 text-slate-400 font-bold">ご予算感</td><td class="py-0.5 text-slate-800" id="print_budget_level">-</td></tr>
+                            <tr><td class="py-0.5 text-slate-400 font-bold">運用保守方針</td><td class="py-0.5 text-slate-800" id="print_operation_style">-</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- その他ミーティングメモ（1枚に収めるためタイトに） -->
+            <div class="mt-2 print-section">
+                <h3 class="text-xs font-bold text-slate-950 bg-slate-100 px-2 py-0.5 rounded">打合せメモ / 特別要望事項</h3>
+                <p class="text-[8.5px] text-slate-700 bg-slate-50 p-1.5 rounded border border-slate-100 leading-relaxed whitespace-pre-wrap mt-1" id="print_additional_notes">-</p>
+            </div>
+
+            <!-- 印刷用フッター -->
+            <div class="pt-1.5 border-t border-slate-200 text-center text-[7.5px] text-slate-400 mt-2">
+                <p>※本ヒアリングシートは、要件定義初期段階の構成案サマリーとなります。デザインや仕様は制作進行に伴い更新される場合があります。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理者ログインモーダル -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 mx-4">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="p-2.5 bg-slate-100 text-slate-600 rounded-xl">
+                    <i class="fa-solid fa-lock text-lg"></i>
+                </div>
+                <h3 class="text-sm font-bold text-slate-900">管理者ログイン</h3>
+            </div>
+            <p class="text-xs text-slate-500 mb-4 leading-relaxed">予算レンジの金額選択肢を変更するには管理者パスワードを入力してください。<br><span class="font-bold">初期パスワード: admin</span></p>
+            <input type="password" id="admin-password-input" placeholder="パスワードを入力" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none text-sm mb-4">
+            <div class="flex justify-end space-x-2">
+                <button onclick="closeAdminLogin()" class="px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-500 hover:bg-slate-50 transition">キャンセル</button>
+                <button onclick="submitAdminLogin()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition">ログイン</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理設定モーダル -->
+    <div id="admin-settings-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 hidden no-print overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100 mx-4 my-8">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                        <i class="fa-solid fa-sliders text-lg"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-900">管理者設定（予算レンジ変更）</h3>
+                </div>
+                <button onclick="closeAdminSettings()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <p class="text-xs text-slate-500 mb-4 leading-relaxed">打ち合わせで提示する「想定ご予算レンジ」の選択肢を自由に編集できます。値（内部・出力用）と表示用のラベル（最大5つ）を個別に設定可能です。</p>
+            
+            <div id="budget-edit-list" class="space-y-3 mb-6">
+                <!-- JSで動的に構築 -->
+            </div>
+
+            <div class="border-t border-slate-100 pt-4 mb-6">
+                <h4 class="text-xs font-bold text-slate-800 mb-2">管理者パスワードの変更</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1">新しいパスワード</label>
+                        <input type="password" id="new-admin-password" placeholder="新規設定用" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1">新しいパスワード（確認）</label>
+                        <input type="password" id="new-admin-password-confirm" placeholder="確認用" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button onclick="resetToDefaultBudget()" class="px-3.5 py-2 border border-slate-200 text-red-600 rounded-xl text-xs font-medium hover:bg-red-50 transition">初期設定に戻す</button>
+                <div class="flex space-x-2">
+                    <button onclick="closeAdminSettings()" class="px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-500 hover:bg-slate-50 transition">閉じる</button>
+                    <button onclick="saveAdminSettings()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition">設定を保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- コントロールダイアログ -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 mx-4">
+            <div class="flex items-center space-x-3 mb-4"><div id="modal-icon-bg" class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl"><i id="modal-icon" class="fa-solid fa-circle-info text-lg"></i></div><h3 id="modal-title" class="text-sm font-bold text-slate-900">確認</h3></div>
+            <p id="modal-message" class="text-xs text-slate-600 mb-6 leading-relaxed">メッセージ内容</p>
+            <div class="flex justify-end space-x-2"><button id="modal-cancel-btn" class="px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-500 hover:bg-slate-50 transition">キャンセル</button><button id="modal-confirm-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition">確認</button></div>
+        </div>
+    </div>
+
+    <!-- JS実装 -->
+    <script>
+        // ----------------------------------------------------
+        // セキュリティ対応・安全なlocalStorageアクセッサー関数
+        // (ダウンロードしたfile://環境でのlocalStorage書き込み拒否エラーを完全に回避)
+        // ----------------------------------------------------
+        function safeGetLocalStorage(key, defaultValue) {
+            try {
+                const val = localStorage.getItem(key);
+                return val !== null ? val : defaultValue;
+            } catch (e) {
+                // セキュリティ拒否発生時はオンメモリでそのまま進行
+                return defaultValue;
+            }
+        }
+
+        function safeSetLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                // エラー時は書き込みをスキップ
+            }
+        }
+
+        function safeRemoveLocalStorage(key) {
+            try {
+                localStorage.removeItem(key);
+            } catch (e) {
+                // エラー時はスキップ
+            }
+        }
+
+        // 予算レンジ初期データ（他変数よりも先に確実に宣言）
+        const defaultBudgetOptions = [
+            { value: "未指定・相談して決定", label: "未指定・相談して決定" },
+            { value: "30万円〜50万円程度 (ミニマル・ライト)", label: "30万〜50万円（簡易テンプレートプラン）" },
+            { value: "50万円〜100万円程度 (スタンダード・標準)", label: "50万〜100万円（オリジナル・標準プラン）" },
+            { value: "100万円〜200万円程度 (プレミアム・多機能)", label: "100万〜200万円（システム連携・マーケ重視）" },
+            { value: "200万円以上 (大規模カスタマイズ)", label: "200万円以上（大規模コーポレート・EC等）" }
+        ];
+
+        // 安全な読み込み処理を施した設定データ展開
+        let budgetOptions;
+        try {
+            const saved = safeGetLocalStorage('web_hearing_budget_options', null);
+            budgetOptions = saved ? JSON.parse(saved) : defaultBudgetOptions;
+        } catch (e) {
+            budgetOptions = [...defaultBudgetOptions];
+        }
+
+        let adminPassword = safeGetLocalStorage('web_hearing_admin_password', "admin");
+
+        let selectedPaletteId = 1; 
+        let currentStep = 1;
+        let selectedFilter = 'all';
+        let fullScreenFilter = 'all'; 
+
+        // カスタムアラート（ReferenceError解消のために最上部に配置）
+        function showCustomAlert(message, title = "お知らせ") {
+            const modal = document.getElementById('custom-modal');
+            const titleEl = document.getElementById('modal-title');
+            const msgEl = document.getElementById('modal-message');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            const iconBg = document.getElementById('modal-icon-bg');
+            const icon = document.getElementById('modal-icon');
+
+            if (!modal) return Promise.resolve(false);
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            cancelBtn.classList.add('hidden'); // アラート時はキャンセル不要
+            
+            iconBg.className = "p-2.5 bg-indigo-50 text-indigo-600 rounded-xl";
+            icon.className = "fa-solid fa-circle-info text-lg";
+
+            modal.classList.remove('hidden');
+
+            return new Promise((resolve) => {
+                confirmBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve(true);
+                };
+            });
+        }
+
+        // カスタムコンファーム
+        function showCustomConfirm(message, title = "実行確認") {
+            const modal = document.getElementById('custom-modal');
+            const titleEl = document.getElementById('modal-title');
+            const msgEl = document.getElementById('modal-message');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            const iconBg = document.getElementById('modal-icon-bg');
+            const icon = document.getElementById('modal-icon');
+
+            if (!modal) return Promise.resolve(false);
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            cancelBtn.classList.remove('hidden'); // キャンセルを表示
+            
+            iconBg.className = "p-2.5 bg-amber-50 text-amber-600 rounded-xl";
+            icon.className = "fa-solid fa-triangle-exclamation text-lg";
+
+            modal.classList.remove('hidden');
+
+            return new Promise((resolve) => {
+                confirmBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve(true);
+                };
+                cancelBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    resolve(false);
+                };
+            });
+        }
+
+        // 完全統合された全100個のプロ仕様パレット配列
+        const colorPalettes = [
+            // --- グレージュ・淡色（paleカテゴリ）: 25種類 ---
+            { id: 1, category: "pale", name: "洗練グレージュ", desc: "大人の上品なくすみグレーベージュ。一番人気のニュアンスカラー。", base: "#F4F2EE", main: "#4A4744", accent: "#C29B9B", baseText: "#2C2A29", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 2, category: "pale", name: "トープ・ミニマリズム", desc: "極上の大人の引き算。上質で無駄のないライフスタイルショップ向け。", base: "#FAF6F0", main: "#6E6053", accent: "#8A9A9E", baseText: "#2D2621", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 3, category: "pale", name: "シャビー・シック", desc: "アンティークなフランス風のブルーグレー。ウェディングやサロンに。", base: "#EBF1F0", main: "#778A90", accent: "#CFA08F", baseText: "#2F3E46", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 4, category: "pale", name: "薄紅・桜パステル", desc: "心浮き立つ淡い桜色のベース。優しく寄り添うブランドデザイン。", base: "#FFF2F2", main: "#DB2777", accent: "#14B8A6", baseText: "#450A0A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 5, category: "pale", name: "清涼ソーダブルー", desc: "透き通るような空色・ペールブルー。爽やかさと清潔感を極める。", base: "#E0F2FE", main: "#0284C7", accent: "#F43F5E", baseText: "#0F172A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 6, category: "pale", name: "ウォーム・ストーングレージュ", desc: "ほんのり暖かみをもたせたストーン系グレージュ。建築やインテリアに。", base: "#EFECE8", main: "#4A4543", accent: "#8C6A5E", baseText: "#2C2A29", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 7, category: "pale", name: "ペール・シャーベットミント", desc: "超淡いアイシー配色。極限の爽やかさ、スイーツ、クリニック向け。", base: "#EBFDF9", main: "#14B8A6", accent: "#FFD5C2", baseText: "#2C3E3A", mainText: "#FFFFFF", accentText: "#4A2E20" },
+            { id: 8, category: "pale", name: "バニラ・スフレアイボリー", desc: "スフレのようにふんわり温かいアイボリー背景。安心感と親しみやすさ。", base: "#FDF6EC", main: "#B45309", accent: "#0F766E", baseText: "#451A03", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 9, category: "pale", name: "アリス・アイススカイ", desc: "どこまでも透き通った空色の背景。知的なスタジオ、教育支援などに。", base: "#EBF8FF", main: "#1D4ED8", accent: "#0D9488", baseText: "#1E293B", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 10, category: "pale", name: "ロイヤル・エクリュクリーム", desc: "完璧な品格を誇るロイヤルアイボリー背景。ホテルやサロン、洋菓子向け。", base: "#FFFDF0", main: "#1E293B", accent: "#C2410C", baseText: "#1E293B", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 11, category: "pale", name: "ミスティ・ラベンダー", desc: "朝霧をまとった幻想的な薄紫背景。フレグランス、サロン、詩的な世界観に。", base: "#F5EFF7", main: "#725E75", accent: "#CAAD8A", baseText: "#2F2330", mainText: "#FFFFFF", accentText: "#2F2330" },
+            { id: 12, category: "pale", name: "ピーチ・ソルベピンク", desc: "みずみずしい桃の実をイメージした極薄ピンク背景。可愛らしい雑貨やカフェに。", base: "#FFF5F0", main: "#D94E34", accent: "#4A7A96", baseText: "#3C1F15", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 13, category: "pale", name: "フォグ・スモーキーグレー", desc: "柔らかな霧をまとったライトグレー。スマートなBtoBやポートフォリオに。", base: "#F2F4F7", main: "#3A4F6B", accent: "#E5A93B", baseText: "#1F2937", mainText: "#FFFFFF", accentText: "#111827" },
+            { id: 14, category: "pale", name: "フレンチリネン・サンド", desc: "乾いたリネンに包まれるような、穏やかで素朴なくすみベージュベース。", base: "#F5F2EB", main: "#5C564F", accent: "#8B9A76", baseText: "#3E352F", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 15, category: "pale", name: "アッシュ・ローズソープ", desc: "超極淡のダスティーローズ（ピンク）背景。極上のリラックス体験に。", base: "#FAF0F2", main: "#8A5A62", accent: "#D19C91", baseText: "#3E2529", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 16, category: "pale", name: "かすみ・クラウドブルー", desc: "曇り空のようなアンニュイな極薄ブルーグレー背景。静寂とミニマリズムを表現。", base: "#EFF3F6", main: "#4B5563", accent: "#D97706", baseText: "#1F2937", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 17, category: "pale", name: "ロイヤルミルクティ", desc: "滑らかなミルクティを思わせる、暖かく品の良いウォームベージュ。", base: "#F5ECE1", main: "#6F4E37", accent: "#4A6B82", baseText: "#3E2723", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 18, category: "pale", name: "スモーキー・ミントアッシュ", desc: "かすかに灰味を帯びた、驚くほど淡いミント。医療、カウンセリング、環境問題に。", base: "#EDF5F1", main: "#4D6B58", accent: "#C28C7A", baseText: "#1E2923", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 19, category: "pale", name: "ピスタチオ・シフォン", desc: "ピスタチオの殻を剥いたような、優しくて明るいイエローグリーン背景。", base: "#F5F8EC", main: "#606F30", accent: "#D97706", baseText: "#1E250A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 20, category: "pale", name: "プラチナ・パールアッシュ", desc: "パールの輝きを宿した淡いグレー。コスメや気品ある洋画スタジオに。", base: "#F3F3F5", main: "#2C3E50", accent: "#B59E5D", baseText: "#2C3E50", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 21, category: "pale", name: "オールドレース・アイボリー", desc: "時を経たアンティークドレスのような、美しい生成り（アイボリー）背景。", base: "#FAF6EB", main: "#5D4037", accent: "#7A8B7B", baseText: "#3E2723", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 22, category: "pale", name: "ダスティ・ライラック", desc: "大人の知性を引き出すくすんだペールパープル。セラピー、サロン等に。", base: "#F3EFF5", main: "#5B446A", accent: "#A5A58D", baseText: "#2A1E35", mainText: "#FFFFFF", accentText: "#111827" },
+            { id: 23, category: "pale", name: "クラウド・フォグ", desc: "朝の雲海をイメージした、透明感を極めたソフトグレー。ミニマリスト設計。", base: "#F0F2F5", main: "#1F2937", accent: "#3B82F6", baseText: "#1F2937", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 24, category: "pale", name: "スウィート・ピーチポルタ", desc: "ピーチのソルベのように優しく甘い、フルーティーな極淡ピンク背景。", base: "#FFF5F2", main: "#C2410C", accent: "#0F766E", baseText: "#451A03", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 25, category: "pale", name: "シフォン・アイリス", desc: "アイリスの花弁を思わせる、静寂で非常に淡いパープルグレー背景。", base: "#F3F1F7", main: "#4B3B63", accent: "#D97706", baseText: "#1F1A2E", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+
+            // --- 渋い・和風（matureカテゴリ）: 25種類 ---
+            { id: 26, category: "mature", name: "和モダン・砂紋グレー", desc: "枯山水の美しさを砂紋グレー背景で。和食、伝統工芸、温泉旅館に。", base: "#EFECE4", main: "#2D2926", accent: "#9E2A2B", baseText: "#1C1917", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 27, category: "mature", name: "煤竹・古民家オリーブ", desc: "くすんだオリーブ土壁調の背景。建築士、リノベーション、和食店に。", base: "#EDECE6", main: "#3E3535", accent: "#B85A38", baseText: "#1E1E1E", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 28, category: "mature", name: "洗練チャコール・スレート", desc: "味わい深いダークグレー背景。白文字が美しく映える引き締まった現代デザイン。", base: "#374151", main: "#F9FAFB", accent: "#10B981", baseText: "#F3F4F6", mainText: "#111827", accentText: "#000000" },
+            { id: 29, category: "mature", name: "真綿・紅化粧", desc: "真綿のようなくすんだ絹白に、深みある紅。伝統を紡ぐデザイン。", base: "#FFFDF6", main: "#3D3535", accent: "#B82F41", baseText: "#1F1A1A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 30, category: "mature", name: "シネマセピア・レトロ", desc: "ノスタルジックなセピア紙の背景。映画、ヴィンテージ服、レトロ喫茶に。", base: "#EFEAE0", main: "#573F33", accent: "#385E5F", baseText: "#2C1E18", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 31, category: "mature", name: "庵治石（あじいし）の美", desc: "日本の銘石「庵治石」を思わせる、静かで洗練された和石グレー背景。", base: "#DEDFDB", main: "#1F2421", accent: "#C5A059", baseText: "#1F2421", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 32, category: "mature", name: "深緑・かすみモス", desc: "深い霧が立ち込める森をかすみライトモス背景で再現。アウトドア、ハーブティに。", base: "#EBECE6", main: "#2C402E", accent: "#C99E15", baseText: "#1B241C", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 33, category: "mature", name: "スレート・ミッドナイト", desc: "インテリジェンスを感じるミッドナイトグレー。先進的でありながら渋いトーン。", base: "#1F2937", main: "#F3F4F6", accent: "#111827", baseText: "#F9FAFB", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 34, category: "mature", name: "コッパー・アンバーウッド", desc: "アンバー調的しっとりした温もり背景にアイアングレーのコントラスト。ヴィンテージガレージに。", base: "#EBE9E4", main: "#2E3033", accent: "#C36A2D", baseText: "#1A202C", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 35, category: "mature", name: "漆黒・ゴールドクラシック", desc: "深く沈むダークグレーとシャンパンゴールド。伝統ホテルのバー等に。", base: "#1C1D21", main: "#2A2F35", accent: "#D4AF37", baseText: "#E5E5E5", mainText: "#FFFFFF", accentText: "#111111" },
+            { id: 36, category: "mature", name: "葡萄・アジアンモダン", desc: "オリエンタルな情景。くすんだラタンエクリュ背景でスパやサロンに。", base: "#F7F4EB", main: "#4B2E40", accent: "#D9A05B", baseText: "#2B1A25", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 37, category: "mature", name: "煤炭・スチーム", desc: "炭色グレーに輝くコッパー。無骨なスチールパンク、レザー専門店に。", base: "#27272A", main: "#3F3F46", accent: "#E27B3A", baseText: "#E5E5EA", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 38, category: "mature", name: "藍染・千草色", desc: "歴史が息づく藍染の美学。くすんだ藍色の背景が圧倒的な存在感を引き出す。", base: "#2B3A4A", main: "#FAF6EE", accent: "#D97706", baseText: "#F3F4F6", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 39, category: "mature", name: "織部・抹茶クラシック", desc: "安土桃山時代より続く織部焼の器をイメージした渋い緑と、金色のアクセント。", base: "#3E4C33", main: "#F7F4EB", accent: "#C5A059", baseText: "#F3F4F6", mainText: "#111827", accentText: "#111827" },
+            { id: 40, category: "mature", name: "鉄御納戸（てつおんど）", desc: "江戸の粋を感じさせる、青味を含んだ重厚なダークグレー。老舗工務店や企業に。", base: "#2E3B42", main: "#F9FAF7", accent: "#D08A42", baseText: "#F3F4F6", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 41, category: "mature", name: "群青・砂金", desc: "深みある群青にくすんだ黄金色をあわせた、歴史と格式の配色。", base: "#1E2A38", main: "#FAF6EE", accent: "#C5A059", baseText: "#F3F4F6", mainText: "#111827", accentText: "#111827" },
+            { id: 42, category: "mature", name: "利休茶・煤竹", desc: "千利休が好んだ、緑がかった渋いブラウングレー。茶室、懐信料理に最適。", base: "#4D4B3E", main: "#FAF7F2", accent: "#B85A38", baseText: "#FAF7F2", mainText: "#1E1E1E", accentText: "#FFFFFF" },
+            { id: 43, category: "mature", name: "深海インディゴ", desc: "深海へと潜っていくような、静寂のディープネイビー背景。ITコンサル、士業に。", base: "#1B2430", main: "#FFFFFF", accent: "#E09F3E", baseText: "#F3F4F6", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 44, category: "mature", name: "侘寂・苔庭", desc: "長年をかけて育まれた、美しき日本の苔庭を再現した渋い草色と和紙背景。", base: "#414D3D", main: "#F5F2EB", accent: "#A67C52", baseText: "#F5F2EB", mainText: "#1E1E1E", accentText: "#FFFFFF" },
+            { id: 45, category: "mature", name: "武家・紺青（こんじょう）", desc: "格式高い武家屋敷を思わせる、強く引き締まった伝統的な濃紺。日本の本物志向に。", base: "#161D2F", main: "#FAF9F5", accent: "#D946EF", baseText: "#FAF9F5", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 46, category: "mature", name: "玄武・スレートグレー", desc: "中国神話の玄武（黒）から着想を得た、渋く冷徹な重厚グレー。現代建築・アート系に。", base: "#2B2D2F", main: "#FAF9F5", accent: "#D4AF37", baseText: "#F9FAFB", mainText: "#111827", accentText: "#111827" },
+            { id: 47, category: "mature", name: "黒曜・漆器ボルドー", desc: "黒曜石のようなダークスレートベースに、漆器のようなボルドーと純白。", base: "#22252A", main: "#881337", accent: "#FFFFFF", baseText: "#FFFFFF", mainText: "#FFFFFF", accentText: "#111827" },
+            { id: 48, category: "mature", name: "常盤緑・金泥", desc: "常に青い常盤木の深緑に、金泥の雅を添えた、格式高き日本の美。", base: "#263D2E", main: "#FAF7EE", accent: "#C5A059", baseText: "#F3F4F6", mainText: "#111827", accentText: "#111827" },
+            { id: 49, category: "mature", name: "和楽・利休ねずみ", desc: "灰色がかったお茶のような、極めて知的な和風くすみカラー背景。陶芸、日本画、茶道に。", base: "#596055", main: "#FFFDF6", accent: "#B85A38", baseText: "#FDFBF7", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 50, category: "mature", name: "ミッドナイト・コパー", desc: "深く、美しき真夜中のロイヤルネイビーにコパー（銅）の輝きを乗せて。バーやラウンジに。", base: "#172554", main: "#1E293B", accent: "#EA580C", baseText: "#F8FAFC", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+
+            // --- 北欧・ナチュラル（naturalカテゴリ）: 18種類 ---
+            { id: 51, category: "natural", name: "ナチュラル・オリーブ", desc: "自然素材の優しさ。オーガニックカフェ、クリニック、工務店に。", base: "#FAF7F2", main: "#3F6212", accent: "#D97706", baseText: "#1C1917", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 52, category: "natural", name: "orange・ライムエクリュ", desc: "親しみと明るさ。福祉、保育、地域密着サービス、飲食店に最適。", base: "#FFFDF0", main: "#EA580C", accent: "#4D7C0F", baseText: "#451A03", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 53, category: "natural", name: "北欧フォレストセージ", desc: "静寂を運ぶ、朝 of セージミスト背景。北欧家具、自然派コスメに。", base: "#F4F7F4", main: "#4A5D4E", accent: "#D69F7E", baseText: "#1E2A20", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 54, category: "natural", name: "ハーブミント・オーガニック", desc: "すっきり心地よい薄ミントハーブ。オーガニックスパやヨガ教室に。", base: "#F4FBF7", main: "#15803D", accent: "#F472B6", baseText: "#14532D", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 55, category: "natural", name: "オリーブオイル・イタリアン", desc: "地中海のオリーブ。温かなアイボリーとオリーブ。カフェバルに。", base: "#FAF9EF", main: "#5F6F3A", accent: "#E8A838", baseText: "#2C3516", mainText: "#FFFFFF", accentText: "#2C3516" },
+            { id: 56, category: "natural", name: "クローバー・サニーグリーン", desc: "芝生に吹く心地よい風。幼稚園、小児科、エコロジーなプロダクトに。", base: "#F9FCEF", main: "#2E7D32", accent: "#FBC02D", baseText: "#1B5E20", mainText: "#FFFFFF", accentText: "#000000" },
+            { id: 57, category: "natural", name: "北欧クールレイク", desc: "澄んだ水を想起するアイスブルー。知的なサウナやコスメブランドに。", base: "#F0F7FA", main: "#1A365D", accent: "#ECC94B", baseText: "#2D3748", mainText: "#FFFFFF", accentText: "#1A365D" },
+            { id: 58, category: "natural", name: "メープル・バニラエクリュ", desc: "ふんわりと溶け込むエクリュアイボリー。丁寧な暮らしの家具店等に。", base: "#F9F4EB", main: "#C84B31", accent: "#2D4263", baseText: "#191919", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 59, category: "natural", name: "カスタード・ミモザ", desc: "優しさ溢れるペールイエローとライム。春の訪れを感じるフラワーショップに。", base: "#FFFEE9", main: "#D97706", accent: "#2563EB", baseText: "#3F2305", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 60, category: "natural", name: "ユーカリ・アッシュ", desc: "穏やかな暮らしのユーカリカラー。自然食マクロビオティック、オーガニックアロマに。", base: "#F1F5F2", main: "#4F5D54", accent: "#E29578", baseText: "#2C332E", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 61, category: "natural", name: "ピスタチオ・ガーデン", desc: "明るく豊かな実りを。オーガニックコスメやエコロジー建築に。", base: "#EEF2E6", main: "#606F30", accent: "#D97706", baseText: "#1E250A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 62, category: "natural", name: "probas・ラベンダー", desc: "南仏のラベンダー畑をイメージした、淡いパープルとナチュラルグリーンの配色。", base: "#FAF5FF", main: "#7C3AED", accent: "#15803D", baseText: "#1E2A20", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 63, category: "natural", name: "ハニー・エクリュ", desc: "温かく親しみやすい極上ハチミツのアイボリー。ナチュラルベーカリーや雑貨に。", base: "#FFFDF0", main: "#D97706", accent: "#0F766E", baseText: "#451A03", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 64, category: "natural", name: "セコイア・ウッド", desc: "荘厳な大樹を感じる深みあるナチュラルブラウンと、葉をイメージしたセージ。", base: "#FAF7EE", main: "#4D382B", accent: "#4F5D54", baseText: "#4D382B", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 65, category: "natural", name: "レモン・バーベナ", desc: "レモンのハーブティーのような、心身がシャキッと目覚める柑橘イエロー＆グリーン。", base: "#FFFFEB", main: "#32963D", accent: "#D97706", baseText: "#1E250A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 66, category: "natural", name: "スカンジナビアン・トープ", desc: "温かみあるトープグレー背景。北欧モダンライフスタイル提案に。", base: "#F7F6F2", main: "#5C534D", accent: "#A3B18A", baseText: "#2D2621", mainText: "#FFFFFF", accentText: "#333D29" },
+            { id: 67, category: "natural", name: "フォレスト・ピクニック", desc: "生命力あふれる森 and 日だまりの芝生。エコライフ, リクレーション, アウトドアに。", base: "#F2F5EB", main: "#1B5E20", accent: "#EA580C", baseText: "#1B5E20", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 68, category: "natural", name: "アッシュ・ユーカリ", desc: "アッシュユーカリの極淡カラー. 精神医療、カウンセリング、エコ理念に。", base: "#ECF2F0", main: "#4F5D54", accent: "#C28C7A", baseText: "#2C332E", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 75, category: "natural", name: "サフラン・アース", desc: "サフランイエローの極淡背景に、大地のブラウン。エスニックや自然派バルに。", base: "#FFFDF2", main: "#78350F", accent: "#D97706", baseText: "#451A03", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+
+            // --- ビジネス・モダン（corporateカテゴリ）: 16種類 ---
+            { id: 69, category: "corporate", name: "ロイヤル・信頼ブルー", desc: "最高度の誠実と知性。コーポレート、コンサル、金融機関等に最適。", base: "#F0F4FA", main: "#1E3A8A", accent: "#F59E0B", baseText: "#0F172A", mainText: "#FFFFFF", accentText: "#1E1B4B" },
+            { id: 70, category: "corporate", name: "プラチナ・エリート", desc: "静謐なステータスと品格。プラチナホワイトにシャンパンゴールドの華を添える。", base: "#FAFAFA", main: "#2D3436", accent: "#C5A059", baseText: "#2D3436", mainText: "#FFFFFF", accentText: "#1E1B4B" },
+            { id: 71, category: "corporate", name: "先端テクノロジー", desc: "DXとスマート。SaaS、AI開発、エンジニアリングベンチャーに最適。", base: "#EDF8FF", main: "#0EA5E9", accent: "#10B981", baseText: "#082F49", mainText: "#FFFFFF", accentText: "#022C22" },
+            { id: 72, category: "corporate", name: "都会的アッシュ", desc: "都会的で洗練されたアッシュグレー背景。スタイリッシュなクリエイティブオフィスに。", base: "#F1F3F5", main: "#475569", accent: "#EA580C", baseText: "#0F172A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 73, category: "corporate", name: "アーバン・クラウドグレー", desc: "穏やかで信頼のおけるクラウドグレー背景。安定感のあるBtoBサービスに。", base: "#F1F5F9", main: "#1E293B", accent: "#10B981", baseText: "#0F172A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 74, category: "corporate", name: "モダン・ボルドー", desc: "大人の成熟した信頼感。専門クリニック、法律事務所、コンサルに。", base: "#F9F4F5", main: "#581C26", accent: "#9A3412", baseText: "#2A0E14", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 75, category: "corporate", name: "パール・ミストネイビー", desc: "淡く上品なパールホワイトグレーに信頼のネイビーを乗せて。", base: "#F9FAFB", main: "#111827", accent: "#4F46E5", baseText: "#111827", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 76, category: "corporate", name: "スマート・モノシフォン", desc: "徹底的にフラットで洗練されたモノトーンデザイン。余白の美学を活かす。", base: "#F3F4F6", main: "#09090B", accent: "#6B7280", baseText: "#111827", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 77, category: "corporate", name: "ロイヤル・インディゴ", desc: "知性を宿した深いインディゴブルー背景。監査法人やBtoBテック大手に最適。", base: "#1E2638", main: "#FAFAFA", accent: "#0EA5E9", baseText: "#F3F4F6", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 78, category: "corporate", name: "クラウド・ネイビー", desc: "淡いクラウドグレーベースに、安心感を与えるディープネイビー。", base: "#F3F5FA", main: "#1E3A8A", accent: "#10B981", baseText: "#1E3A8A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 79, category: "corporate", name: "アッシュ・インテリジェンス", desc: "都会的なミディアムグレーに知的ネイビーをのせた、最高にクールなコーポレート色。", base: "#E5E7EB", main: "#1E3A8A", accent: "#EC4899", baseText: "#111827", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 80, category: "corporate", name: "エグゼクティブ・ボルドー", desc: "洗練された最高級を。VIPコンサル、ラグジュアリーカードを意識した配色。", base: "#2B1A1D", main: "#C5A059", accent: "#FFFFFF", baseText: "#FFFFFF", mainText: "#2B1A1D", accentText: "#111827" },
+            { id: 81, category: "corporate", name: "サイバー・クラウドセキュリティ", desc: "極めて先進的なクラウド・防御をイメージした、ミストグレーにインディゴの安心感。", base: "#F8FAFC", main: "#4F46E5", accent: "#10B981", baseText: "#0F172A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 82, category: "corporate", name: "スマート·miniアッシュ", desc: "余白を美しく際立たせる、洗練のアッシュライトグレーベース。グローバル企業に。", base: "#F1F5F9", main: "#0F172A", accent: "#4F46E5", baseText: "#0F172A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 83, category: "corporate", name: "ステータス・コパー", desc: "重厚かつ信頼あるスレートダークグレーベース。高級リノベーションや投資に。", base: "#2F3542", main: "#FAFAFA", accent: "#D35400", baseText: "#F3F4F6", mainText: "#111827", accentText: "#FFFFFF" },
+            { id: 84, category: "corporate", name: "アイビー・インフォ・ネイビー", desc: "教育、情報発信、公的機関などに誠実に機能する配色。", base: "#EFF6FF", main: "#1E3A8A", accent: "#0D9488", baseText: "#1E3A8A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+
+            // ==========================================
+            // --- ポップ・個性派（popカテゴリ）: 16種類 ---
+            // ==========================================
+            { id: 85, category: "pop", name: "創造性・バイオレット", desc: "感性を揺さぶるネオンバイオレット。先進のデザイン事務所、アートサロンに。", base: "#F8F5FF", main: "#7C3AED", accent: "#F43F5E", baseText: "#1C1917", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 86, category: "pop", name: "メルヘン・パステルレモン", desc: "お日さまを浴びたレモンイエロー背景。ハンドメイド, 子供向け、スイーツに。", base: "#FEFCE8", main: "#A8DADC", accent: "#F4A261", baseText: "#1D3557", mainText: "#1D3557", accentText: "#FFFFFF" },
+            { id: 87, category: "pop", name: "サンセット・カリフォルニア", desc: "開放的なサニーバニラ背景. カリフォルニアスタイルアパレル、ダイナーに。", base: "#FFFDF6", main: "#D94E34", accent: "#4A7A96", baseText: "#3C1F15", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 88, category: "pop", name: "レトロポップ・ティール", desc: "アメリカンレトロポップ。ヘアサロン、ポップなカフェ、個性的アトリエに。", base: "#FFFBF2", main: "#008080", accent: "#FF6F61", baseText: "#1E293B", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 89, category: "pop", name: "アクティブ・アスリートグレー", desc: "力強いスレートグレー背景に、アスリートの熱意を乗せたライム。パーソナルジムに。", base: "#374151", main: "#1F2937", accent: "#A3E635", baseText: "#F9FAFB", mainText: "#F9FAFB", accentText: "#09090B" },
+            { id: 90, category: "pop", name: "コズミック・ボイジャー", desc: "深宇宙をマイルドなネイビーグレー背景で。WEB3、VRイベントなどに。", base: "#242936", main: "#1F2833", accent: "#66FCF1", baseText: "#C5C6C7", mainText: "#FFFFFF", accentText: "#080A10" },
+            { id: 91, category: "pop", name: "クラフト・ブリック", desc: "手仕事を感じる温かなクラフト紙背景。DIY、工具、男前インテリア店に。", base: "#FDF9F2", main: "#3E4149", accent: "#D35400", baseText: "#1A252C", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 92, category: "pop", name: "サイバー・デジタルミント", desc: "デジタルスレート背景に、ミントネオン. ガジェット、プログラミングスクールに。", base: "#1F2937", main: "#10B981", accent: "#F43F5E", baseText: "#F9FAFB", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 93, category: "pop", name: "ピスタチオ・ネオンローズ", desc: "鮮やかなくすみピスタチオに強烈なピンクのネオンを効かせた、前衛的なクリエイティブ色。", base: "#EFF3E7", main: "#4B5320", accent: "#EC4899", baseText: "#1E250A", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 94, category: "pop", name: "トワイライト・ネオンシアン", desc: "トワイライトのネイビーにくっきりと光るネオンシアン。夜間イベントやDJ向け。", base: "#1E1B4B", main: "#7C3AED", accent: "#06B6D4", baseText: "#EEF2F6", mainText: "#FFFFFF", accentText: "#080A10" },
+            { id: 95, category: "pop", name: "ダスティ・パンクローズ", desc: "ダスティーローズ背景に漆黒を合わせ、5%のネオンローズでトドメ。アパレルやエッジなブランドに。", base: "#FCE7F3", main: "#111827", accent: "#EC4899", baseText: "#111827", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 96, category: "pop", name: "アイアン・フェニックス", desc: "錆びた鉄のようなダークアッシュグレー背景に、蘇る炎の情熱。", base: "#3F3F46", main: "#18181B", accent: "#EA580C", baseText: "#F4F4F5", mainText: "#FFFFFF", accentText: "#FFFFFF" },
+            { id: 97, category: "pop", name: "フォグ・サイバーイエロー", desc: "極薄のフォググレー背景に、注意を引くビビッドイエロー。近未来デジタルハックに。", base: "#F3F4F6", main: "#1E293B", accent: "#EAB308", baseText: "#0F172A", mainText: "#FFFFFF", accentText: "#000000" },
+            { id: 98, category: "pop", name: "スカンジナビアン・パンク", desc: "静かな北欧の水色背景に、ロックな赤とゴールドを。オルタナティブカルチャー向け。", base: "#ECFDF5", main: "#9F1239", accent: "#C5A059", baseText: "#1F2937", mainText: "#FFFFFF", accentText: "#111827" },
+            { id: 100, category: "pop", name: "フォレスト・ネオンライム", desc: "荘厳な深緑ベースに、目が覚めるようなネオンライム。ゲーム、WEBサービス、テック系。", base: "#14532D", main: "#1F2937", accent: "#A3E635", baseText: "#F4FDF4", mainText: "#FFFFFF", accentText: "#09090B" },
+            { id: 99, category: "pop", name: "オーシャン・バーベナ", desc: "海を愛するアパレル・サーフ。淡くまばゆいペールブルーに、夕陽を乗せて。", base: "#F0F9FF", main: "#0D9488", accent: "#EA580C", baseText: "#034E5A", mainText: "#FFFFFF", accentText: "#FFFFFF" }
+        ];
+
+        // 予算プルダウン構築
+        function renderBudgetOptions() {
+            const select = document.getElementById('budget_level');
+            if(!select) return;
+            select.innerHTML = '';
+            budgetOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                select.appendChild(option);
+            });
+            select.selectedIndex = 0;
+        }
+
+        // ログインモーダル
+        function openAdminLogin() {
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+        }
+        function closeAdminLogin() {
+            document.getElementById('admin-login-modal').classList.add('hidden');
+        }
+        function submitAdminLogin() {
+            const input = document.getElementById('admin-password-input').value;
+            if (input === adminPassword) {
+                closeAdminLogin();
+                openAdminSettings();
+            } else {
+                showCustomAlert("パスワードが正しくありません。", "認証エラー");
+            }
+        }
+
+        // 管理設定モーダル
+        function openAdminSettings() {
+            const listContainer = document.getElementById('budget-edit-list');
+            listContainer.innerHTML = '';
+            budgetOptions.forEach((opt, index) => {
+                listContainer.insertAdjacentHTML('beforeend', `
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <span class="text-[10px] font-bold text-indigo-600 block mb-1">選択肢 ${index + 1}</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><input type="text" id="budget-val-${index}" value="${opt.value}" class="w-full px-2 py-1 border rounded text-xs"></div>
+                            <div><input type="text" id="budget-lbl-${index}" value="${opt.label}" class="w-full px-2 py-1 border rounded text-xs"></div>
+                        </div>
+                    </div>
+                `);
+            });
+            document.getElementById('admin-settings-modal').classList.remove('hidden');
+        }
+        function closeAdminSettings() {
+            document.getElementById('admin-settings-modal').classList.add('hidden');
+        }
+        function saveAdminSettings() {
+            const updated = [];
+            for (let i = 0; i < budgetOptions.length; i++) {
+                const val = document.getElementById(`budget-val-${i}`).value.trim();
+                const lbl = document.getElementById(`budget-lbl-${i}`).value.trim();
+                updated.push({ value: val, label: lbl });
+            }
+
+            // パスワード変更
+            const newPw = document.getElementById('new-admin-password').value;
+            const newPwConfirm = document.getElementById('new-admin-password-confirm').value;
+
+            if (newPw) {
+                if (newPw !== newPwConfirm) {
+                    showCustomAlert("新しく設定するパスワードと確認用パスワードが一致しません。", "パスワードエラー");
+                    return;
+                }
+                adminPassword = newPw;
+                safeSetLocalStorage('web_hearing_admin_password', adminPassword);
+            }
+
+            budgetOptions = updated;
+            safeSetLocalStorage('web_hearing_budget_options', JSON.stringify(budgetOptions));
+            renderBudgetOptions();
+            closeAdminSettings();
+            showCustomAlert("設定を保存しました。");
+        }
+        function resetToDefaultBudget() {
+            budgetOptions = [...defaultBudgetOptions];
+            safeRemoveLocalStorage('web_hearing_budget_options');
+            renderBudgetOptions();
+            closeAdminSettings();
+            showCustomAlert("初期設定に戻しました。");
+        }
+
+        // カラーパレット描画
+        function filterPalettes(category) {
+            selectedFilter = category;
+            const tabs = ['all', 'pale', 'mature', 'natural', 'corporate', 'pop'];
+            tabs.forEach(cat => {
+                const btn = document.getElementById(`tab-${cat}`);
+                if(btn) btn.className = cat === category ? "text-xs px-3 py-1.5 rounded-full font-semibold transition bg-indigo-600 text-white" : "text-xs px-3 py-1.5 rounded-full font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200";
+            });
+            renderPalettes();
+        }
+        function renderPalettes() {
+            const container = document.getElementById('color-palette-list');
+            if(!container) return;
+            container.innerHTML = '';
+            const filtered = selectedFilter === 'all' ? colorPalettes : colorPalettes.filter(p => p.category === selectedFilter);
+            filtered.forEach(p => {
+                const isActive = p.id === selectedPaletteId;
+                container.insertAdjacentHTML('beforeend', `
+                    <div onclick="selectPalette(${p.id})" class="border ${isActive ? 'border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/10' : 'border-slate-200 bg-white'} rounded-2xl p-4 cursor-pointer flex flex-col justify-between h-40">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-sm text-slate-800">${p.name}</h3>
+                                ${isActive ? '<i class="fa-solid fa-circle-check text-indigo-600"></i>' : '<div class="w-4 h-4 rounded-full border"></div>'}
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${p.desc}</p>
+                        </div>
+                        <div class="flex h-5 rounded overflow-hidden text-[9px] font-bold text-center text-white">
+                            <div style="background-color: ${p.base}; width: 70%; color:${p.baseText}">70%</div>
+                            <div style="background-color: ${p.main}; width: 25%; color:${p.mainText}">25%</div>
+                            <div style="background-color: ${p.accent}; width: 5%; color:${p.accentText}">5%</div>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        // 全画面表示パレット
+        function filterPalettesFull(category) {
+            fullScreenFilter = category;
+            const tabs = ['all', 'pale', 'mature', 'natural', 'corporate', 'pop'];
+            tabs.forEach(cat => {
+                const btn = document.getElementById(`full-tab-${cat}`);
+                if(btn) btn.className = cat === category ? "px-2.5 py-1 rounded text-[10px] font-bold bg-indigo-600 text-white transition" : "px-2.5 py-1 rounded text-[10px] font-bold text-slate-400 hover:text-white transition";
+            });
+            renderMiniPalettesFull();
+        }
+        function renderMiniPalettesFull() {
+            const container = document.getElementById('full-screen-mini-palette-list');
+            if(!container) return;
+            container.innerHTML = '';
+            const filtered = fullScreenFilter === 'all' ? colorPalettes : colorPalettes.filter(p => p.category === fullScreenFilter);
+            filtered.forEach(p => {
+                const isActive = p.id === selectedPaletteId;
+                container.insertAdjacentHTML('beforeend', `
+                    <button onclick="selectPalette(${p.id}); renderMiniPalettesFull();" class="flex-shrink-0 flex items-center space-x-2 px-3 py-1.5 rounded-xl border ${isActive ? 'border-indigo-400 ring-2 bg-slate-800' : 'border-slate-700 bg-slate-900'} text-[11px]">
+                        <div class="flex space-x-0.5">
+                            <span class="w-3.5 h-3.5 rounded" style="background-color: ${p.base}"></span>
+                            <span class="w-3.5 h-3.5 rounded" style="background-color: ${p.main}"></span>
+                            <span class="w-3.5 h-3.5 rounded" style="background-color: ${p.accent}"></span>
+                        </div>
+                        <span class="text-slate-200 font-medium">${p.name}</span>
+                    </button>
+                `);
+            });
+        }
+
+        function selectPalette(id) {
+            selectedPaletteId = id;
+            renderPalettes();
+            updatePreview();
+        }
+
+        // フルスクリーン制御
+        function toggleFullscreenPreview() {
+            const card = document.getElementById('web-preview-card');
+            const previewOuter = document.getElementById('preview-outer-container');
+            const isFull = previewOuter.classList.contains('fixed');
+            
+            const header = document.getElementById('main-header');
+            const formContainer = document.getElementById('form-container');
+            const previewHeader = document.getElementById('preview-header');
+            const closeFullBtn = document.getElementById('close-full-btn');
+            const floatingSelector = document.getElementById('full-screen-floating-selector');
+            
+            if (!isFull) {
+                // 全画面表示専用のスケールアップクラスを注入
+                card.classList.add('fullscreen-mode');
+
+                header.classList.add('hidden');
+                formContainer.classList.add('hidden');
+                previewHeader.classList.add('hidden');
+
+                // プレビューのアウターコンテナを fixed フルスクリーン背景として展開
+                previewOuter.className = "fixed inset-0 z-40 bg-slate-950/95 flex flex-col items-center justify-start p-4 md:p-8 pb-48 overflow-y-auto no-print";
+                
+                // カード自体の最大幅制限を完全撤去
+                card.className = "fullscreen-mode bg-white w-full max-w-none h-[calc(100vh-200px)] flex flex-col rounded-2xl shadow-2xl overflow-y-auto relative transition-all duration-300";
+                
+                closeFullBtn.classList.remove('hidden');
+                floatingSelector.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                filterPalettesFull('all');
+            } else {
+                card.classList.remove('fullscreen-mode');
+
+                header.classList.remove('hidden');
+                formContainer.classList.remove('hidden');
+                previewHeader.classList.remove('hidden');
+
+                // 通常モードに安全復帰
+                previewOuter.className = "w-full lg:w-[58%] flex flex-col space-y-4 no-print";
+                card.className = "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-grow flex flex-col min-h-[620px] relative transition-all duration-300";
+                
+                closeFullBtn.classList.add('hidden');
+                floatingSelector.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function toggleHPUri(show) {
+            const container = document.getElementById('hp_url_container');
+            if(container) container.style.display = show ? 'block' : 'none';
+        }
+
+        // プレビュー同期
+        function updatePreview() {
+            const companyName = document.getElementById('company_name').value.trim() || "株式会社〇〇";
+            const currentPalette = colorPalettes.find(p => p.id === selectedPaletteId) || colorPalettes[0];
+            const mainGoal = document.querySelector('input[name="main_goal"]:checked')?.value || "";
+            
+            document.getElementById('prev-nav').style.backgroundColor = currentPalette.base;
+            document.getElementById('prev-brand-name').style.color = currentPalette.baseText;
+            document.getElementById('prev-brand-name').innerText = companyName;
+            
+            const logo = document.getElementById('prev-logo-icon');
+            logo.style.backgroundColor = currentPalette.main;
+            logo.style.color = currentPalette.mainText;
+            logo.innerText = companyName.substring(0, 1);
+
+            document.getElementById('prev-nav-cta').style.backgroundColor = currentPalette.accent;
+            document.getElementById('prev-nav-cta').style.color = currentPalette.accentText;
+
+            document.getElementById('prev-hero').style.backgroundColor = currentPalette.base;
+            document.getElementById('prev-hero-title').style.color = currentPalette.baseText;
+            
+            const badge = document.getElementById('prev-hero-badge');
+            badge.style.color = currentPalette.main;
+            badge.style.backgroundColor = currentPalette.main + "15";
+
+            document.getElementById('prev-hero-btn').style.backgroundColor = currentPalette.main;
+            document.getElementById('prev-hero-btn').style.color = currentPalette.mainText;
+            document.getElementById('prev-hero-btn-sub').style.borderColor = currentPalette.main;
+            document.getElementById('prev-hero-btn-sub').style.color = currentPalette.main;
+
+            document.getElementById('prev-feat-1-icon').style.backgroundColor = currentPalette.accent;
+            document.getElementById('prev-feat-1-icon').style.color = currentPalette.accentText;
+            document.getElementById('prev-feat-2-icon').style.backgroundColor = currentPalette.main;
+            document.getElementById('prev-feat-2-icon').style.color = currentPalette.mainText;
+            document.getElementById('prev-feat-3-icon').style.backgroundColor = currentPalette.main;
+            document.getElementById('prev-feat-3-icon').style.color = currentPalette.mainText;
+
+            document.getElementById('prev-palette-name').innerText = currentPalette.name;
+            document.getElementById('prev-indicator-base').style.backgroundColor = currentPalette.base;
+            document.getElementById('prev-indicator-main').style.backgroundColor = currentPalette.main;
+            document.getElementById('prev-indicator-accent').style.backgroundColor = currentPalette.accent;
+
+            let title = "想いをかたちにする、新しいデザイン";
+            let desc = "目的を達成するための最適な体験価値を作ります。";
+            if(mainGoal.includes("採用")) {
+                title = `${companyName}で、共に未来を創る。`;
+                desc = "私たちの熱いスピリットや社風を伝える採用特設サイト。";
+            } else if(mainGoal.includes("問い合わせ")) {
+                title = "ビジネスを、ウェブの力で最大化する。";
+                desc = "見込み顧客へ正確に魅力を発信し、確実なお問い合わせへと誘います。";
+            }
+            document.getElementById('prev-hero-title').innerText = title;
+            document.getElementById('prev-hero-desc').innerText = desc;
+        }
+
+        // ステップ遷移
+        function jumpToStep(step) {
+            for (let i = 1; i <= 5; i++) {
+                const content = document.getElementById(`step-content-${i}`);
+                const btn = document.getElementById(`step-btn-${i}`);
+                if(i === step) {
+                    if(content) content.classList.remove('hidden');
+                    if(btn) {
+                        btn.className = "flex items-center space-x-2 text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600 pb-2 px-1 focus:outline-none transition";
+                        btn.querySelector('span').className = "w-6 h-6 flex items-center justify-center bg-indigo-600 text-white rounded-full text-xs";
+                    }
+                } else {
+                    if(content) content.classList.add('hidden');
+                    if(btn) {
+                        btn.className = "flex items-center space-x-2 text-sm font-medium text-slate-400 hover:text-slate-600 pb-2 px-1 focus:outline-none transition";
+                        btn.querySelector('span').className = "w-6 h-6 flex items-center justify-center bg-slate-200 text-slate-600 rounded-full text-xs";
+                    }
+                }
+            }
+            currentStep = step;
+            document.getElementById('current-step-indicator').innerText = currentStep;
+            document.getElementById('prev-btn').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+            document.getElementById('next-btn').innerHTML = currentStep === 5 ? `<span>要件を最終確認</span><i class="fa-solid fa-square-check"></i>` : `<span>次へ進む</span><i class="fa-solid fa-arrow-right"></i>`;
+            
+            // デザイン・配色ステップ(4)に進んだら、パレットリストを確実に描画
+            if(step === 4) {
+                renderPalettes();
+            }
+        }
+        function nextStep() {
+            if (currentStep < 5) jumpToStep(currentStep + 1);
+            else openPrintPreview();
+        }
+        function prevStep() {
+            if (currentStep > 1) jumpToStep(currentStep - 1);
+        }
+
+        // ドキュメントデータ充填
+        function fillPrintData() {
+            const getVal = id => document.getElementById(id)?.value.trim() || "-";
+            document.getElementById('print_company_name').innerText = getVal('company_name');
+            document.getElementById('print_company_rep').innerText = getVal('company_rep');
+            document.getElementById('print_company_address').innerText = getVal('company_address');
+            document.getElementById('print_corporate_number').innerText = getVal('corporate_number');
+            document.getElementById('print_industry_license').innerText = `${getVal('company_industry')} / ${getVal('construction_license')}`;
+            document.getElementById('print_capital_phone').innerText = `資本金: ${getVal('company_capital')} / TEL: ${getVal('company_phone')}`;
+            document.getElementById('print_client_name').innerText = getVal('client_name');
+            document.getElementById('print_meeting_date').innerText = document.getElementById('meeting_date').value || "----年--月--日";
+            document.getElementById('print_client_email').innerText = getVal('client_email');
+            
+            const currentPalette = colorPalettes.find(p => p.id === selectedPaletteId) || colorPalettes[0];
+            document.getElementById('print_palette_name').innerText = currentPalette.name;
+            document.getElementById('print_palette_desc').innerText = currentPalette.desc;
+            
+            document.getElementById('print_color_base').style.backgroundColor = currentPalette.base;
+            document.getElementById('print_color_base').style.color = currentPalette.baseText;
+            document.getElementById('print_color_main').style.backgroundColor = currentPalette.main;
+            document.getElementById('print_color_main').style.color = currentPalette.mainText;
+            document.getElementById('print_color_accent').style.backgroundColor = currentPalette.accent;
+            document.getElementById('print_color_accent').style.color = currentPalette.accentText;
+
+            document.getElementById('print_schedule_date').innerText = getVal('schedule_date');
+            document.getElementById('print_budget_level').innerText = getVal('budget_level');
+            document.getElementById('print_additional_notes').innerText = getVal('additional_notes');
+            document.getElementById('print_main_goal').innerText = document.querySelector('input[name="main_goal"]:checked')?.value || "-";
+            document.getElementById('print_target_demographics').innerText = getVal('target_demographics');
+            document.getElementById('print_target_persona').innerText = getVal('target_persona');
+            document.getElementById('print_target_keywords').innerText = getVal('target_keywords');
+            document.getElementById('print_target_pain_points').innerText = getVal('target_pain_points');
+            
+            const painPoints = Array.from(document.querySelectorAll('input[name="pain_points"]:checked')).map(el => el.value);
+            const list = document.getElementById('print_pain_points');
+            list.innerHTML = painPoints.length ? painPoints.map(p => `<li>${p}</li>`).join('') : '<li>特に指定なし</li>';
+        }
+
+        // 印刷プレビューモード（A4要件定義モーダル）の起動
+        function openPrintPreview() {
+            const companyName = document.getElementById('company_name').value.trim();
+            if(!companyName) {
+                showCustomAlert("プレビューを起動するために、STEP 1の「会社名」をご記入ください！", "入力項目チェック").then(() => {
+                    jumpToStep(1);
+                });
+                return;
+            }
+
+            // 印刷用データをモーダル内のA4用紙シートに流し込む
+            fillPrintData();
+            
+            // 画面上にモーダルプレビューを100%確実に表示する
+            const previewModal = document.getElementById('print-preview-modal');
+            if (previewModal) {
+                previewModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // 背後の親画面スクロールをロック
+            }
+        }
+
+        // プレビューモーダルを閉じる
+        function closePreviewModal() {
+            const previewModal = document.getElementById('print-preview-modal');
+            if (previewModal) {
+                previewModal.style.display = 'none';
+                document.body.style.overflow = ''; // スクロールロック解除
+            }
+        }
+
+        // 保存・エクスポート (Webサーバー対応・安全保護ロジック付き)
+        function exportPDF() {
+            if(typeof html2pdf === 'undefined') { showCustomAlert("PDF生成ライブラリの読み込みが完了していません。接続環境を確認してください。"); return; }
+            const companyName = document.getElementById('company_name').value.trim() || "Web_Hearing_Sheet";
+            fillPrintData();
+            
+            const sheet = document.getElementById('print-sheet-container');
+            const opt = {
+                margin:       [8, 8, 8, 8],
+                filename:     `${companyName}_web_hearing_sheet.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(sheet).save().then(() => {
+                showCustomAlert("PDFファイルをデバイスに保存しました。");
+            }).catch(err => {
+                showCustomAlert("PDFの生成に失敗しました: " + err, "エラー");
+            });
+        }
+
+        function exportSpreadsheet() {
+            if(typeof XLSX === 'undefined') { showCustomAlert("Excel出力ライブラリの読み込みが完了していません。"); return; }
+            const companyName = document.getElementById('company_name').value.trim();
+            if(!companyName) { showCustomAlert("Excel出力のために会社名を入力してください。"); return; }
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([["項目", "ヒアリング内容"], ["会社名", companyName], ["打合せ日", document.getElementById('meeting_date').value], ["打合せ納期要望", document.getElementById('schedule_date').value]]);
+            XLSX.utils.book_append_sheet(wb, ws, "ヒアリングサマリー");
+            XLSX.writeFile(wb, `${companyName}_hearing.xlsx`);
+        }
+
+        function resetData() {
+            showCustomConfirm("シートの内容をすべてリセットしますか？").then(ok => {
+                if(ok) {
+                    safeRemoveLocalStorage('web_hearing_budget_options');
+                    safeRemoveLocalStorage('web_hearing_admin_password');
+                    location.reload();
+                }
+            });
+        }
+
+        // 初期化処理の実行
+        renderBudgetOptions();
+        renderPalettes();
+        updatePreview();
+    </script>
+</body>
+</html>
