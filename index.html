@@ -45,10 +45,10 @@
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
-    // カラーパレットの定義
+    // カラーパレットの定義 (前回の追加カラーも完全に引き継ぎ)
     const NODE_COLORS = [
       { id: 'white', name: 'ホワイト', bg: 'bg-white', border: 'border-slate-200', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-100', inputBg: 'bg-slate-50', actionBtn: 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-400 hover:text-red-600 hover:bg-red-50' },
-      { id: 'lightgrey', name: 'ライトグレー', bg: 'bg-slate-100', border: 'border-slate-300', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-200/60', inputBg: 'bg-slate-50', actionBtn: 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-500 hover:text-red-600 hover:bg-red-50' },
+      { id: 'lightgrey', name: 'ライトグレー', bg: 'bg-slate-100', border: 'border-slate-300', text: 'text-slate-800', pathText: 'text-slate-500', pathBg: 'bg-slate-200/60', inputBg: 'bg-slate-50', actionBtn: 'text-slate-505 hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-slate-505 hover:text-red-600 hover:bg-red-50' },
       { id: 'darkgrey', name: 'ダークグレー', bg: 'bg-[#555a64]', border: 'border-[#3f434a]', text: 'text-white', pathText: 'text-slate-200', pathBg: 'bg-[#3f434a]/60', inputBg: 'bg-[#6c727d]', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-300 hover:bg-red-900/50' },
       { id: 'greige', name: 'グレージュ', bg: 'bg-[#E5E0DB]', border: 'border-[#c8bfa7]', text: 'text-[#4a3f35]', pathText: 'text-[#6e5d4f]', pathBg: 'bg-[#f0ece9]', inputBg: 'bg-[#f5f2f0]', actionBtn: 'text-[#6e5d4f] hover:text-indigo-600 hover:bg-indigo-50', deleteBtn: 'text-[#6e5d4f] hover:text-red-600 hover:bg-red-50' },
       { id: 'olive', name: 'アース(オリーブ)', bg: 'bg-[#7D846C]', border: 'border-[#626853]', text: 'text-white', pathText: 'text-[#d2d6c9]', pathBg: 'bg-[#5d624e]', inputBg: 'bg-[#8f967d]', actionBtn: 'text-white/70 hover:text-white hover:bg-white/20', deleteBtn: 'text-white/70 hover:text-red-100 hover:bg-red-800/40' },
@@ -310,12 +310,13 @@
     };
 
     // サイトマップツリーの個別ノード
-    const OrgNode = ({ node, onAdd, onUpdate, onDelete, onToggle, level = 0, isExportingPDF }) => {
+    const OrgNode = ({ node, onAddChild, onAddSibling, onUpdate, onDelete, onToggle, level = 0, isExportingPDF }) => {
       const [isEditing, setIsEditing] = useState(false);
       const [editTitle, setEditTitle] = useState(node.title);
       const [editPath, setEditPath] = useState(node.path);
       const [editColor, setEditColor] = useState(node.color || 'green');
       const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+      const [showAddMenu, setShowAddMenu] = useState(false); // ★ 追加方向の選択メニュー状態
 
       useEffect(() => {
         if (isEditing) {
@@ -330,7 +331,7 @@
         if (window.lucide) {
           window.lucide.createIcons();
         }
-      }, [isEditing, showDeleteConfirm]);
+      }, [isEditing, showDeleteConfirm, showAddMenu]);
 
       const handleSave = (e) => {
         e?.stopPropagation();
@@ -356,15 +357,15 @@
             {/* カード本体 */}
             <div className={`border-2 rounded-xl pt-5 pb-4 px-2 w-[190px] relative transition-all duration-300 shadow-sm hover:shadow-md
               ${currentStyle.bg}
-              ${isEditing || showDeleteConfirm ? 'ring-4 ring-indigo-100 border-indigo-400 z-10' : `${currentStyle.border} hover:border-indigo-300`}`}>
+              ${isEditing || showDeleteConfirm || showAddMenu ? 'ring-4 ring-indigo-100 border-indigo-400 z-10' : `${currentStyle.border} hover:border-indigo-300`}`}>
               
-              {/* 各種アクションボタン (iPadでのタップ操作にも完全配慮) */}
-              {!isEditing && !showDeleteConfirm && !isExportingPDF && (
+              {/* 各種アクションボタン */}
+              {!isEditing && !showDeleteConfirm && !showAddMenu && !isExportingPDF && (
                 <div className="absolute top-1 right-1 flex gap-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20">
                   <button 
-                    onClick={(e) => { e.stopPropagation(); onAdd(node.id); }} 
+                    onClick={(e) => { e.stopPropagation(); setShowAddMenu(true); }} 
                     className={`p-1.5 rounded transition-colors ${currentStyle.actionBtn}`} 
-                    title="子ページを追加"
+                    title="追加メニューを表示"
                   >
                     <i data-lucide="plus" className="w-4 h-4"></i>
                   </button>
@@ -380,15 +381,73 @@
                 </div>
               )}
 
-              {/* コンテンツエリア */}
+              {/* コンテンツエリア (表示・編集・削除に加えて、追加方向選択をイン・カード形式で展開) */}
               <div className="min-h-[64px] flex flex-col justify-center">
                 {showDeleteConfirm && !isExportingPDF ? (
-                  <div className="flex flex-col items-center justify-center" onClick={e => e.stopPropagation()}>
+                  <div className="flex flex-col items-center justify-center animate-fade-in" onClick={e => e.stopPropagation()}>
                     <span className={`text-xs font-bold mb-2 ${currentStyle.text === 'text-white' ? 'text-white' : 'text-red-600'}`}>削除しますか？</span>
                     <div className="flex gap-2">
                       <button onClick={(e) => { e.stopPropagation(); onDelete(node.id); }} className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition-colors shadow-sm">はい</button>
                       <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(false); }} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors shadow-sm ${currentStyle.text === 'text-white' ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'}`}>いいえ</button>
                     </div>
+                  </div>
+                ) : showAddMenu && !isExportingPDF ? (
+                  /* ★ 追加方向の選択メニュー (iPadでも快適にタップできる大きさ) */
+                  <div className="flex flex-col items-center justify-center animate-fade-in" onClick={e => e.stopPropagation()}>
+                    <span className={`text-[11px] font-bold mb-1.5 ${currentStyle.text === 'text-white' ? 'text-white/80' : 'text-slate-500'}`}>追加先を選択</span>
+                    <div className="grid grid-cols-3 gap-1 w-full">
+                      {/* 左隣へ追加ボタン (Root以外のみ有効) */}
+                      {!isRoot ? (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'left'); setShowAddMenu(false); }}
+                          className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
+                          title="同じ階層の左側に追加"
+                        >
+                          <span className="text-sm font-semibold">←</span>
+                          <span className="scale-90 origin-center">左隣</span>
+                        </button>
+                      ) : (
+                        <div className="py-1.5 text-slate-400 text-[10px] flex items-center justify-center bg-slate-100 rounded-lg select-none border border-slate-200">
+                          -
+                        </div>
+                      )}
+                      
+                      {/* 下(子)へ追加ボタン */}
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onAddChild(node.id); setShowAddMenu(false); }}
+                        className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
+                        title="子ページを追加"
+                      >
+                        <span className="text-sm font-semibold">↓</span>
+                        <span className="scale-90 origin-center">下(子)</span>
+                      </button>
+
+                      {/* 右隣へ追加ボタン (Root以外のみ有効) */}
+                      {!isRoot ? (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onAddSibling(node.id, 'right'); setShowAddMenu(false); }}
+                          className="py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm flex flex-col items-center justify-center"
+                          title="同じ階層の右側に追加"
+                        >
+                          <span className="text-sm font-semibold">→</span>
+                          <span className="scale-90 origin-center">右隣</span>
+                        </button>
+                      ) : (
+                        <div className="py-1.5 text-slate-400 text-[10px] flex items-center justify-center bg-slate-100 rounded-lg select-none border border-slate-200">
+                          -
+                        </div>
+                      )}
+                    </div>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setShowAddMenu(false); }}
+                      className={`mt-1.5 w-full py-1 text-[10px] font-bold rounded-md transition-colors border ${
+                        currentStyle.text === 'text-white' 
+                          ? 'bg-white/10 text-white border-white/20 hover:bg-white/20' 
+                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      キャンセル
+                    </button>
                   </div>
                 ) : isEditing && !isExportingPDF ? (
                   <div className="flex flex-col gap-2 px-1" onClick={e => e.stopPropagation()}>
@@ -471,7 +530,8 @@
                   key={child.id} 
                   node={child} 
                   level={level + 1}
-                  onAdd={onAdd}
+                  onAddChild={onAddChild}
+                  onAddSibling={onAddSibling}
                   onUpdate={onUpdate}
                   onDelete={onDelete}
                   onToggle={onToggle}
@@ -523,13 +583,35 @@
         });
       };
 
-      const addNode = (nodes, parentId, newNode) => {
+      // 子ノードとして末尾に追加
+      const addChildNode = (nodes, parentId, newNode) => {
         return nodes.map(node => {
           if (node.id === parentId) {
             return { ...node, isExpanded: true, children: [...node.children, newNode] };
           }
-          if (node.children) {
-            return { ...node, children: addNode(node.children, parentId, newNode) };
+          if (node.children && node.children.length > 0) {
+            return { ...node, children: addChildNode(node.children, parentId, newNode) };
+          }
+          return node;
+        });
+      };
+
+      // 兄弟ノードとして左または右に追加
+      const addSiblingNode = (nodes, targetId, newNode, direction) => {
+        const index = nodes.findIndex(n => n.id === targetId);
+        if (index !== -1) {
+          const newNodes = [...nodes];
+          if (direction === 'left') {
+            newNodes.splice(index, 0, newNode);
+          } else {
+            newNodes.splice(index + 1, 0, newNode);
+          }
+          return newNodes;
+        }
+
+        return nodes.map(node => {
+          if (node.children && node.children.length > 0) {
+            return { ...node, children: addSiblingNode(node.children, targetId, newNode, direction) };
           }
           return node;
         });
@@ -558,7 +640,8 @@
         }));
       };
 
-      const handleAdd = (parentId) => {
+      // ★ 子ページ追加ハンドラー
+      const handleAddChild = (parentId) => {
         const newNode = {
           id: generateId(),
           title: '新規ページ',
@@ -567,7 +650,20 @@
           isExpanded: true,
           children: []
         };
-        setData(addNode(data, parentId, newNode));
+        setData(addChildNode(data, parentId, newNode));
+      };
+
+      // ★ 兄弟ページ追加ハンドラー (左・右自由)
+      const handleAddSibling = (targetId, direction) => {
+        const newNode = {
+          id: generateId(),
+          title: '新規ページ',
+          path: '/new',
+          color: 'green',
+          isExpanded: true,
+          children: []
+        };
+        setData(addSiblingNode(data, targetId, newNode, direction));
       };
 
       const handleUpdate = (id, newData) => setData(updateNode(data, id, newData));
@@ -790,7 +886,7 @@
                         <OrgNode 
                           key={node.id} 
                           node={node} 
-                          onAdd={()=>{}} onUpdate={()=>{}} onDelete={()=>{}} onToggle={()=>{}} 
+                          onAddChild={()=>{}} onAddSibling={()=>{}} onUpdate={()=>{}} onDelete={()=>{}} onToggle={()=>{}} 
                           isExportingPDF={true} 
                         />
                       ))}
@@ -820,7 +916,7 @@
                 <h1 className="text-base sm:text-lg font-bold tracking-tight hidden md:inline">サイトマップビルダー</h1>
               </div>
 
-              {/* ★ 中央：表示画面切り替えタブ（上下分割を廃止し、タブ式で全画面化） */}
+              {/* 中央：表示画面切り替えタブ */}
               <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner border border-slate-200">
                 <button
                   onClick={() => setActiveTab('tree')}
@@ -880,7 +976,7 @@
             </div>
           </header>
 
-          {/* メイン表示エリア (タブで切り替わり、それぞれ画面幅一杯で使用) */}
+          {/* メイン表示エリア */}
           <main className="flex-1 flex flex-col relative overflow-hidden bg-slate-100/50">
             
             {/* 1. ツリー図キャンバス */}
@@ -908,7 +1004,8 @@
                         <OrgNode 
                           key={node.id} 
                           node={node} 
-                          onAdd={handleAdd}
+                          onAddChild={handleAddChild}
+                          onAddSibling={handleAddSibling}
                           onUpdate={handleUpdate}
                           onDelete={handleDelete}
                           onToggle={handleToggle}
@@ -921,7 +1018,7 @@
               </div>
             </div>
 
-            {/* 2. ディレクトリマップ表 (分割なしで全面広々と表示) */}
+            {/* 2. ディレクトリマップ表 */}
             <div className={`flex-1 overflow-auto bg-white ${activeTab === 'table' ? 'block' : 'hidden'}`}>
               <DirectoryMap data={data} onShowToast={showToast} isExportingPDF={false} />
             </div>
